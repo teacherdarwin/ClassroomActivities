@@ -4,6 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Classroom Jeopardy</title>
+    <!-- Importing Bebas Neue from Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    
     <style>
         :root {
             --bg-color: #0f172a;
@@ -11,66 +16,223 @@
             --card-hover: #2563eb;
             --accent-amber: #f59e0b;
             --text-light: #f8fafc;
+            --font-display: 'Bebas Neue', sans-serif;
+            --font-sans: 'Inter', system-ui, sans-serif;
         }
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', system-ui, sans-serif; }
-        body { background-color: var(--bg-color); color: var(--text-light); padding: 20px; display: flex; flex-direction: column; min-height: 100vh; }
-        h1 { text-align: center; color: var(--accent-amber); margin-bottom: 20px; text-transform: uppercase; letter-spacing: 2px; }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { 
+            background-color: var(--bg-color); 
+            color: var(--text-light); 
+            padding: 20px; 
+            display: flex; 
+            flex-direction: column; 
+            min-height: 100vh;
+            font-family: var(--font-sans);
+        }
+        
+        h1 { 
+            text-align: center; 
+            color: var(--accent-amber); 
+            margin-bottom: 25px; 
+            text-transform: uppercase; 
+            letter-spacing: 4px; 
+            font-family: var(--font-display);
+            font-size: 4rem;
+            text-shadow: 0 4px 12px rgba(245, 158, 11, 0.2);
+        }
         
         /* Scoreboard */
-        .scoreboard { display: flex; justify-content: center; gap: 20px; margin-bottom: 25px; flex-wrap: wrap; }
-        .team-card { background: #1e293b; padding: 15px 25px; border-radius: 12px; border: 2px solid #334155; text-align: center; min-width: 150px; }
-        .team-name { font-size: 1.1rem; font-weight: bold; margin-bottom: 8px; color: #94a3b8; }
-        .score { font-size: 2rem; font-weight: 800; color: var(--text-light); margin-bottom: 10px; }
-        .score-btn { border: none; padding: 6px 12px; font-weight: bold; border-radius: 6px; cursor: pointer; margin: 0 4px; transition: opacity 0.2s; }
+        .scoreboard { display: flex; justify-content: center; gap: 20px; margin-bottom: 30px; flex-wrap: wrap; }
+        .team-card { 
+            background: #1e293b; 
+            padding: 15px 25px; 
+            border-radius: 16px; 
+            border: 2px solid #334155; 
+            text-align: center; 
+            min-width: 170px;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+        }
+        .team-name { 
+            font-size: 1.1rem; 
+            font-weight: 800; 
+            margin-bottom: 8px; 
+            color: #94a3b8; 
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            outline: none;
+        }
+        .team-name:focus {
+            border-bottom: 2px dashed var(--accent-amber);
+        }
+        .score { 
+            font-family: var(--font-display);
+            font-size: 3.5rem; 
+            color: var(--text-light); 
+            margin-bottom: 12px; 
+            letter-spacing: 1px;
+            line-height: 1;
+        }
+        .score-control-group {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+        }
+        .score-btn { 
+            border: none; 
+            padding: 8px 14px; 
+            font-weight: 800; 
+            font-size: 0.9rem;
+            border-radius: 8px; 
+            cursor: pointer; 
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
+        }
         .plus { background: #10b981; color: white; }
         .minus { background: #ef4444; color: white; }
-        .score-btn:hover { opacity: 0.9; }
+        .score-btn:hover { 
+            transform: translateY(-2px);
+            filter: brightness(1.15);
+            box-shadow: 0 6px 8px -1px rgba(0, 0, 0, 0.3);
+        }
+        .score-btn:active {
+            transform: translateY(0);
+        }
 
         /* Game Board Grid */
         .board { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; flex-grow: 1; max-width: 1200px; margin: 0 auto; width: 100%; }
-        .category-header { background: #334155; padding: 20px 10px; text-align: center; font-weight: 800; text-transform: uppercase; border-radius: 8px; border-bottom: 4px solid var(--accent-amber); display: flex; align-items: center; justify-content: center; font-size: 1.1rem; min-height: 70px; }
-        .clue-card { background: var(--card-blue); color: var(--accent-amber); font-size: 1.8rem; font-weight: 800; display: flex; align-items: center; justify-content: center; border-radius: 8px; cursor: pointer; transition: all 0.2s ease; min-height: 90px; border: 1px solid #2563eb; }
-        .clue-card:hover:not(.viewed) { background: var(--card-hover); transform: scale(1.03); color: var(--text-light); }
-        .clue-card.viewed { background: #1e293b; color: #475569; border-color: #334155; cursor: not-allowed; }
+        .category-header { 
+            background: #334155; 
+            padding: 15px 10px; 
+            text-align: center; 
+            font-family: var(--font-display);
+            font-size: 2.2rem;
+            letter-spacing: 2px;
+            text-transform: uppercase; 
+            border-radius: 12px; 
+            border-bottom: 5px solid var(--accent-amber); 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            min-height: 70px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        .clue-card { 
+            background: linear-gradient(135deg, var(--card-blue), #1e40af); 
+            color: var(--accent-amber); 
+            font-family: var(--font-display);
+            font-size: 3rem; 
+            letter-spacing: 1px;
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            border-radius: 12px; 
+            cursor: pointer; 
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); 
+            min-height: 100px; 
+            border: 2px solid #2563eb;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
+        }
+        .clue-card:hover:not(.viewed) { 
+            background: linear-gradient(135deg, var(--card-hover), #3b82f6); 
+            transform: translateY(-4px) scale(1.02); 
+            color: var(--text-light); 
+            border-color: #60a5fa;
+            box-shadow: 0 12px 20px -5px rgba(37, 99, 235, 0.5);
+        }
+        .clue-card.viewed { 
+            background: #1e293b; 
+            color: #475569; 
+            border-color: #334155; 
+            cursor: not-allowed; 
+            box-shadow: none;
+            transform: none;
+        }
 
         /* Modal Overlay */
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.95); align-items: center; justify-content: center; padding: 20px; z-index: 100; }
-        .modal-content { background: #1e293b; border: 3px solid var(--accent-amber); padding: 40px; border-radius: 16px; max-width: 700px; width: 100%; text-align: center; position: relative; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); }
-        .modal-text { font-size: 2rem; line-height: 1.4; margin-bottom: 30px; font-weight: 600; }
-        .reveal-btn { background: var(--accent-amber); color: #0f172a; border: none; padding: 12px 30px; font-size: 1.2rem; font-weight: bold; border-radius: 8px; cursor: pointer; transition: background 0.2s; }
-        .reveal-btn:hover { background: #d97706; }
-        .close-btn { position: absolute; top: 15px; right: 20px; font-size: 2rem; cursor: pointer; color: #94a3b8; }
+        .modal-content { 
+            background: #1e293b; 
+            border: 3px solid var(--accent-amber); 
+            padding: 50px 40px; 
+            border-radius: 24px; 
+            max-width: 750px; 
+            width: 100%; 
+            text-align: center; 
+            position: relative; 
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.7); 
+        }
+        .modal-text { font-size: 2.2rem; line-height: 1.4; margin-bottom: 40px; font-weight: 600; color: var(--text-light); }
+        .reveal-btn { 
+            background: var(--accent-amber); 
+            color: #0f172a; 
+            border: none; 
+            padding: 16px 36px; 
+            font-size: 1.3rem; 
+            font-weight: 800; 
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-radius: 12px; 
+            cursor: pointer; 
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 14px rgba(245, 158, 11, 0.4);
+        }
+        .reveal-btn:hover { 
+            background: #fbbf24; 
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(245, 158, 11, 0.6);
+        }
+        .reveal-btn:active {
+            transform: translateY(0);
+        }
+        .close-btn { 
+            position: absolute; 
+            top: 20px; 
+            right: 25px; 
+            font-size: 2.5rem; 
+            cursor: pointer; 
+            color: #94a3b8; 
+            transition: color 0.2s;
+            line-height: 1;
+        }
         .close-btn:hover { color: white; }
     </style>
 </head>
 <body>
 
-    <h1>Jeopardy Game</h1>
+    <h1>Classroom Jeopardy</h1>
 
     <div class="scoreboard">
         <div class="team-card">
             <div class="team-name" contenteditable="true">Team 1</div>
             <div class="score" id="s1">0</div>
-            <button class="score-btn plus" onclick="changeScore('s1', 100)">+100</button>
-            <button class="score-btn minus" onclick="changeScore('s1', -100)">-100</button>
+            <div class="score-control-group">
+                <button class="score-btn plus" onclick="changeScore('s1', 100)">+100</button>
+                <button class="score-btn minus" onclick="changeScore('s1', -100)">-100</button>
+            </div>
         </div>
         <div class="team-card">
             <div class="team-name" contenteditable="true">Team 2</div>
             <div class="score" id="s2">0</div>
-            <button class="score-btn plus" onclick="changeScore('s2', 100)">+100</button>
-            <button class="score-btn minus" onclick="changeScore('s2', -100)">-100</button>
+            <div class="score-control-group">
+                <button class="score-btn plus" onclick="changeScore('s2', 100)">+100</button>
+                <button class="score-btn minus" onclick="changeScore('s2', -100)">-100</button>
+            </div>
         </div>
         <div class="team-card">
             <div class="team-name" contenteditable="true">Team 3</div>
             <div class="score" id="s3">0</div>
-            <button class="score-btn plus" onclick="changeScore('s3', 100)">+100</button>
-            <button class="score-btn minus" onclick="changeScore('s3', -100)">-100</button>
+            <div class="score-control-group">
+                <button class="score-btn plus" onclick="changeScore('s3', 100)">+100</button>
+                <button class="score-btn minus" onclick="changeScore('s3', -100)">-100</button>
+            </div>
         </div>
         <div class="team-card">
             <div class="team-name" contenteditable="true">Team 4</div>
             <div class="score" id="s4">0</div>
-            <button class="score-btn plus" onclick="changeScore('s4', 100)">+100</button>
-            <button class="score-btn minus" onclick="changeScore('s4', -100)">-100</button>
+            <div class="score-control-group">
+                <button class="score-btn plus" onclick="changeScore('s4', 100)">+100</button>
+                <button class="score-btn minus" onclick="changeScore('s4', -100)">-100</button>
+            </div>
         </div>
     </div>
 
@@ -120,7 +282,7 @@
                     { value: 100, q: "Sam bought 4 notebooks for $3 each. He paid with a $20 bill. How much change did he get?", a: "$8" },
                     { value: 200, q: "A train travels at 60 mph. How long will it take to cover 210 miles?", a: "3.5 hours" },
                     { value: 300, q: "The sum of three consecutive integers is 45. What is the smallest integer?", a: "14 (14, 15, 16)" },
-                    { value: 400, q: "A shoes store offers a 20% discount on a $80 pair of shoes. What is the sale price?", a: "$64" }
+                    { value: 400, q: "A shoe store offers a 20% discount on a $80 pair of shoes. What is the sale price?", a: "$64" }
                 ]
             }
         ];
