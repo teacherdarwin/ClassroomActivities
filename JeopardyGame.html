@@ -3,883 +3,458 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Retro Pixel Split-Screen Arcade Game</title>
-    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Rubik+Mono+One&family=VT323&display=swap" rel="stylesheet">
+    <title>Retro Arcade Jeopardy</title>
+    <!-- Importing 8-Bit Pixel Font from Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Inter:wght@400;700&display=swap" rel="stylesheet">
+    
     <style>
         :root {
-            --team1-color: #ff4757; /* Arcade Red */
-            --team1-bg: #2f3542; /* Dark Techno Slate */
-            --team2-color: #2ed573; /* Arcade Green */
-            --team2-bg: #1e272e; /* Deep Matrix Grey */
-            --pixel-font: 'Press Start 2P', monospace;
-            --retro-font: 'VT323', monospace;
-            --header-font: 'Rubik Mono One', sans-serif;
-            --neon-glow: 0 0 10px rgba(255, 255, 255, 0.5), 0 0 20px currentColor;
+            --bg-color: #020617;
+            --card-blue: #1e3a8a;
+            --card-hover: #1d4ed8;
+            --accent-amber: #eab308;
+            --pixel-green: #22c55e;
+            --pixel-red: #ef4444;
+            --text-light: #f8fafc;
+            --font-pixel: 'Press Start 2P', monospace;
+            --font-sans: 'Inter', sans-serif;
         }
-
-        * {
-            box-sizing: border-box;
-            user-select: none;
-            -webkit-user-select: none;
-            -webkit-touch-callout: none;
-        }
-
-        body, html {
-            margin: 0;
-            padding: 0;
-            width: 100%;
-            height: 100%;
-            overflow: hidden;
-            background-color: #000;
-            color: #fff;
-            font-family: var(--pixel-font);
-            touch-action: none;
-        }
-
-        /* Screens Structure */
-        .screen {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            display: none;
-            flex-direction: column;
-        }
-
-        .screen.active {
-            display: flex;
-        }
-
-        /* --- 3D Retro Intro Screen --- */
-        #intro-screen {
-            justify-content: center;
-            align-items: center;
-            background: linear-gradient(180deg, #0f0c20 0%, #06040a 100%);
-            text-align: center;
-            border: 10px double #333;
-        }
-
-        .intro-title {
-            font-family: var(--header-font);
-            font-size: 4rem;
-            line-height: 1.2;
-            margin-bottom: 2.5rem;
-            text-transform: uppercase;
-            color: #fff;
-            text-shadow: 4px 4px 0px #ff4757, 8px 8px 0px #2ed573, 12px 12px 0px #1e90ff;
-            animation: textFloat 3s ease-in-out infinite alternate;
-        }
-
-        @keyframes textFloat {
-            0% { transform: translateY(0px) rotate(-1deg); }
-            100% { transform: translateY(-15px) rotate(1deg); }
-        }
-
-        .btn-retro {
-            font-family: var(--pixel-font);
-            background: #ffa502;
-            color: #000;
-            border: 4px solid #fff;
-            padding: 1.5rem 3rem;
-            font-size: 1.4rem;
-            cursor: pointer;
-            box-shadow: 6px 6px 0px #b37700, inset -4px -4px 0px rgba(0,0,0,0.4);
-            transition: all 0.05s ease;
+        
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        
+        body { 
+            background-color: var(--bg-color); 
+            color: var(--text-light); 
+            padding: 20px; 
+            display: flex; 
+            flex-direction: column; 
+            min-height: 100vh;
+            font-family: var(--font-pixel);
+            font-size: 12px;
             image-rendering: pixelated;
         }
-
-        .btn-retro:active {
-            transform: translate(4px, 4px);
-            box-shadow: 2px 2px 0px #b37700, inset -2px -2px 0px rgba(0,0,0,0.4);
+        
+        /* 3D Retro Text Shadows */
+        h1 { 
+            text-align: center; 
+            color: var(--accent-amber); 
+            margin-bottom: 30px; 
+            text-transform: uppercase; 
+            font-size: 2.2rem;
+            line-height: 1.4;
+            text-shadow: 4px 4px 0px #7e22ce, 8px 8px 0px #000;
         }
-
-        .intro-credits {
-            margin-top: 3rem;
-            font-family: var(--retro-font);
-            font-size: 1.8rem;
-            color: #70a1ff;
-            letter-spacing: 2px;
-            text-shadow: 2px 2px #000;
+        
+        /* Scoreboard */
+        .scoreboard { display: flex; justify-content: center; gap: 15px; margin-bottom: 30px; flex-wrap: wrap; }
+        .team-card { 
+            background: #0f172a; 
+            padding: 15px; 
+            border: 4px solid #334155;
+            box-shadow: 4px 4px 0px #000;
+            text-align: center; 
+            min-width: 190px;
         }
-
-        /* --- Active Game HUD Layout --- */
-        #hud {
-            height: 90px;
-            background: #0a0a16;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 0 2rem;
-            border-bottom: 6px solid #fff;
-            z-index: 10;
-        }
-
-        .score-board {
-            font-size: 1.2rem;
-            font-weight: bold;
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            padding: 0.5rem 1rem;
-            border: 4px solid #fff;
-            box-shadow: 4px 4px 0px rgba(255,255,255,0.2);
-        }
-
-        .t1-score { color: var(--team1-color); border-color: var(--team1-color); }
-        .t2-score { color: var(--team2-color); border-color: var(--team2-color); }
-
-        .center-hud {
-            text-align: center;
-        }
-
-        #current-rule {
-            font-size: 1.1rem;
-            color: #fff;
-            background: #2f3542;
-            padding: 0.5rem 1.5rem;
-            border: 3px dashed #ffa502;
-            text-shadow: 2px 2px #000;
-        }
-
-        /* Central Playground Timer Display */
-        #timer {
-            position: fixed;
-            top: 45px;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 100px;
-            height: 60px;
-            background: #000;
-            border: 4px solid #fff;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 1.6rem;
-            color: #ff9f43;
-            box-shadow: 0 0 15px rgba(255, 159, 67, 0.4);
-            z-index: 40;
-        }
-
-        /* Main Arena and Team Splits */
-        .arena {
-            display: flex;
-            flex: 1;
-            height: calc(100vh - 290px); /* Adjust dynamically to map room for teacher dashboard */
-            position: relative;
-        }
-
-        .team-zone {
-            flex: 1;
-            position: relative;
-            overflow: hidden;
-        }
-
-        #zone-1 {
-            background-color: var(--team1-bg);
-            background-image: linear-gradient(rgba(255,255,255,.03) 2px, transparent 2px), linear-gradient(90deg, rgba(255,255,255,.03) 2px, transparent 2px);
-            background-size: 40px 40px;
-            border-right: 4px dashed #fff;
-        }
-
-        #zone-2 {
-            background-color: var(--team2-bg);
-            background-image: linear-gradient(rgba(255,255,255,.03) 2px, transparent 2px), linear-gradient(90deg, rgba(255,255,255,.03) 2px, transparent 2px);
-            background-size: 40px 40px;
-        }
-
-        /* 8-Bit Pixel Bubble Elements */
-        .bubble {
-            position: absolute;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            width: 90px;
-            height: 90px;
-            background: #000;
-            border: 4px solid #fff;
-            font-size: 1rem;
-            box-shadow: 5px 5px 0px rgba(0,0,0,0.5);
-            cursor: pointer;
-            transform: translate(-50%, -50%);
-            text-align: center;
-            font-family: var(--pixel-font);
-            color: #fff;
-        }
-
-        .bubble:active {
-            transform: translate(-50%, -50%) scale(0.9);
-            background: #fff;
-            color: #000;
-        }
-
-        /* Retro Instant Pop Text Animations */
-        .feedback {
-            position: absolute;
-            font-family: var(--pixel-font);
-            font-size: 1.5rem;
-            pointer-events: none;
-            animation: retroFloat 0.6s steps(5) forwards;
-            transform: translate(-50%, -50%);
-            z-index: 20;
-            text-shadow: 2px 2px #000;
-        }
-
-        @keyframes retroFloat {
-            0% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
-            50% { transform: translate(-50%, -90%) scale(1.3); }
-            100% { opacity: 0; transform: translate(-50%, -120%) scale(1); }
-        }
-
-        .flash-green { animation: fGreen 0.2s linear; }
-        .flash-red { animation: fRed 0.2s linear; }
-        @keyframes fGreen { 0%, 100% { background-color: var(--team1-bg); } 50% { background-color: #2ed573; } }
-        @keyframes fRed { 0%, 100% { background-color: var(--team2-bg); } 50% { background-color: #ff4757; } }
-
-        /* --- Integrated Bottom Teacher Dashboard Module --- */
-        #teacher-bottom-panel {
-            height: 200px;
-            background: #111122;
-            border-top: 6px solid #fff;
-            padding: 1rem;
-            display: flex;
-            gap: 1.5rem;
-            z-index: 100;
-            font-family: var(--retro-font);
-            font-size: 1.4rem;
-            letter-spacing: 1px;
-            color: #fff;
-        }
-
-        #teacher-bottom-panel label {
-            font-family: var(--pixel-font);
-            font-size: 0.65rem;
-            color: #ffa502;
-            display: block;
-            margin-bottom: 0.4rem;
-        }
-
-        .panel-column {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            background: rgba(0,0,0,0.3);
-            border: 3px dashed #444;
-            padding: 0.6rem;
-        }
-
-        .panel-column input, .panel-column select, .panel-column textarea {
-            font-family: var(--retro-font);
-            font-size: 1.3rem;
-            background: #000;
-            color: #2ed573;
-            border: 2px solid #fff;
-            padding: 0.3rem;
-            width: 100%;
+        .team-name { 
+            font-size: 0.7rem; 
+            margin-bottom: 12px; 
+            color: #94a3b8; 
+            text-transform: uppercase;
             outline: none;
+            letter-spacing: 1px;
         }
-
-        .btn-panel-action {
-            font-family: var(--pixel-font);
-            font-size: 0.7rem;
-            background: #2ed573;
-            color: #000;
-            border: 2px solid #fff;
-            padding: 0.5rem;
+        .team-name:focus {
+            border-bottom: 2px dashed var(--accent-amber);
+        }
+        .score { 
+            font-size: 1.8rem; 
+            color: #38bdf8; 
+            margin-bottom: 15px; 
+            text-shadow: 3px 3px 0px #000;
+        }
+        .score-control-group { display: flex; gap: 8px; justify-content: center; }
+        
+        /* 3D Flat Styled Retro Buttons */
+        .pixel-btn {
+            font-family: var(--font-pixel);
+            font-size: 0.65rem;
+            border: none;
+            padding: 8px 10px;
             cursor: pointer;
+            color: white;
+            text-transform: uppercase;
+            box-shadow: 0px 4px 0px #000;
+            position: relative;
+            transition: all 0.1s ease;
+        }
+        .pixel-btn.plus { background: var(--pixel-green); box-shadow: 0px 4px 0px #15803d, 0px 4px 0px #000; }
+        .pixel-btn.minus { background: var(--pixel-red); box-shadow: 0px 4px 0px #b91c1c, 0px 4px 0px #000; }
+        .pixel-btn:active {
+            transform: translateY(4px);
+            box-shadow: 0px 0px 0px #000;
+        }
+
+        /* Game Board Grid Architecture */
+        .board { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; max-width: 1200px; margin: 0 auto 50px auto; width: 100%; }
+        .category-header { 
+            background: #1e1b4b; 
+            padding: 15px 5px; 
+            text-align: center; 
+            font-size: 0.65rem;
+            line-height: 1.5;
+            text-transform: uppercase; 
+            border: 4px solid #4338ca;
+            box-shadow: 4px 4px 0px #000;
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            min-height: 75px;
+            color: #c084fc;
+        }
+        .clue-card { 
+            background: var(--card-blue); 
+            color: var(--accent-amber); 
+            font-size: 1.6rem; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            border: 4px solid #2563eb;
+            box-shadow: 4px 4px 0px #000;
+            cursor: pointer; 
+            min-height: 100px;
+            text-shadow: 3px 3px 0px #000;
+        }
+        .clue-card:hover:not(.viewed) { 
+            background: var(--card-hover); 
+            border-color: #60a5fa;
+            color: var(--text-light);
+        }
+        .clue-card.viewed { 
+            background: #0f172a; 
+            color: #475569; 
+            border-color: #1e293b; 
+            cursor: not-allowed; 
+            box-shadow: none;
+            text-shadow: none;
+        }
+
+        /* Retro Modal Overlay Layout */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.9); align-items: center; justify-content: center; padding: 20px; z-index: 100; }
+        .modal-content { 
+            background: #020617; 
+            border: 6px solid var(--accent-amber); 
+            padding: 40px; 
+            max-width: 750px; 
+            width: 100%; 
+            text-align: center; 
+            position: relative; 
+            box-shadow: 10px 10px 0px #000;
+        }
+        .modal-text { font-size: 1rem; line-height: 1.8; margin-bottom: 40px; color: var(--text-light); font-family: var(--font-pixel); text-transform: uppercase; }
+        
+        .action-btn { 
+            background: #a855f7; 
+            color: white; 
+            border: none; 
+            padding: 15px 25px; 
+            font-size: 0.8rem; 
+            font-family: var(--font-pixel);
+            text-transform: uppercase;
+            cursor: pointer; 
+            box-shadow: 0px 5px 0px #6b21a8, 0px 5px 0px #000;
+        }
+        .action-btn:hover { background: #c084fc; }
+        .action-btn:active { transform: translateY(5px); box-shadow: 0px 0px 0px #000; }
+        
+        .close-btn { position: absolute; top: 15px; right: 20px; font-size: 1.5rem; cursor: pointer; color: #ef4444; }
+
+        /* Integrated Inline Bottom Teacher Panel Station */
+        .teacher-inline-panel {
+            max-width: 1200px;
+            margin: 0 auto;
             width: 100%;
-            margin-top: 0.3rem;
-            box-shadow: 3px 3px 0px #1b944f;
+            background: #0f172a;
+            border: 4px solid #a855f7;
+            box-shadow: 6px 6px 0px #000;
+            padding: 25px;
+            margin-top: 40px;
         }
-
-        .btn-panel-action.danger {
-            background: #ff4757;
-            box-shadow: 3px 3px 0px #a32631;
-            color: #fff;
-        }
-
-        .inline-inputs {
+        .panel-heading {
+            color: #c084fc;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            margin-bottom: 20px;
+            letter-spacing: 1px;
+            border-bottom: 3px dashed #334155;
+            padding-bottom: 10px;
             display: flex;
-            gap: 0.5rem;
-        }
-
-        /* --- Game Over Modal Overlay --- */
-        #gameover-screen {
-            justify-content: center;
             align-items: center;
-            background: rgba(0,0,0,0.9);
-            z-index: 500;
+            gap: 10px;
         }
-
-        .winner-card {
-            border: 8px double #fff;
-            background: #000;
-            padding: 3rem;
-            text-align: center;
-            box-shadow: 0 0 30px rgba(255,255,255,0.2);
+        .panel-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            margin-bottom: 25px;
         }
-
-        #winnerText {
-            font-family: var(--header-font);
-            font-size: 2.5rem;
-            margin-bottom: 1.5rem;
-            color: #ff9f43;
-            text-shadow: 3px 3px 0px #ff4757;
+        .panel-col {
+            background: #020617;
+            padding: 12px;
+            border: 2px solid #334155;
         }
-
-        .final-scores {
-            display: flex;
-            justify-content: center;
-            gap: 3rem;
-            font-size: 2rem;
-            margin-bottom: 2rem;
+        .panel-cat-input {
+            width: 100%;
+            background: #1e1b4b;
+            border: 2px solid var(--accent-amber);
+            color: white;
+            padding: 8px;
+            font-family: var(--font-pixel);
+            font-size: 0.55rem;
+            margin-bottom: 15px;
+            text-transform: uppercase;
         }
+        .clue-edit-box {
+            background: #0f172a;
+            padding: 8px;
+            margin-bottom: 10px;
+            border-left: 3px solid #3b82f6;
+        }
+        .clue-label {
+            color: #3b82f6;
+            font-size: 0.55rem;
+            margin-bottom: 4px;
+        }
+        .panel-input {
+            width: 100%;
+            background: #020617;
+            border: 1px solid #475569;
+            color: #e2e8f0;
+            padding: 6px;
+            font-family: var(--font-sans); /* Kept readable for long custom text entry */
+            font-size: 0.8rem;
+            margin-top: 4px;
+            display: block;
+        }
+        .panel-input:focus { outline: none; border-color: var(--accent-amber); }
+        .panel-save-container { text-align: center; }
     </style>
 </head>
 <body>
 
-    <div id="intro-screen" class="screen active">
-        <div class="intro-title">
-            BRAIN BATTLE<br>
-            <span style="font-size: 2.2rem; color: #2ed573;">ARCADE EDITION</span>
+    <h1>Retro Jeopardy</h1>
+
+    <!-- Scoreboard System -->
+    <div class="scoreboard">
+        <div class="team-card">
+            <div class="team-name" contenteditable="true">Player 1</div>
+            <div class="score" id="s1">000</div>
+            <div class="score-control-group">
+                <button class="pixel-btn plus" onclick="changeScore('s1', 100)">+UP</button>
+                <button class="pixel-btn minus" onclick="changeScore('s1', -100)">-DN</button>
+            </div>
         </div>
-        <button class="btn-retro" onclick="switchScreen('game-screen'); startGame();">INSERT COIN (START)</button>
-        <div class="intro-credits">
-            FB: Kim Oyda | TikTok: josephkim456
+        <div class="team-card">
+            <div class="team-name" contenteditable="true">Player 2</div>
+            <div class="score" id="s2">000</div>
+            <div class="score-control-group">
+                <button class="pixel-btn plus" onclick="changeScore('s2', 100)">+UP</button>
+                <button class="pixel-btn minus" onclick="changeScore('s2', -100)">-DN</button>
+            </div>
+        </div>
+        <div class="team-card">
+            <div class="team-name" contenteditable="true">Player 3</div>
+            <div class="score" id="s3">000</div>
+            <div class="score-control-group">
+                <button class="pixel-btn plus" onclick="changeScore('s3', 100)">+UP</button>
+                <button class="pixel-btn minus" onclick="changeScore('s3', -100)">-DN</button>
+            </div>
+        </div>
+        <div class="team-card">
+            <div class="team-name" contenteditable="true">Player 4</div>
+            <div class="score" id="s4">000</div>
+            <div class="score-control-group">
+                <button class="pixel-btn plus" onclick="changeScore('s4', 100)">+UP</button>
+                <button class="pixel-btn minus" onclick="changeScore('s4', -100)">-DN</button>
+            </div>
         </div>
     </div>
 
-    <div id="game-screen" class="screen">
-        <div id="hud">
-            <div class="score-board t1-score">
-                <span id="team1-display">P1-TEAM</span>
-                <span id="score1">000</span>
-            </div>
-            <div class="center-hud">
-                <div id="current-rule">RULE: EVEN NUMBERS</div>
-            </div>
-            <div class="score-board t2-score">
-                <span id="score2">000</span>
-                <span id="team2-display">P2-TEAM</span>
-            </div>
-        </div>
+    <!-- Active Visual Game Grid -->
+    <div class="board" id="gameBoard"></div>
 
-        <div class="arena">
-            <div id="timer">60</div>
-            <div id="zone-1" class="team-zone"></div>
-            <div id="zone-2" class="team-zone"></div>
+    <!-- Popout Clue Window Modal -->
+    <div class="modal" id="clueModal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeModal()">&times;</span>
+            <div class="modal-text" id="modalText">Initializing data...</div>
+            <button class="action-btn" id="revealBtn" onclick="revealAnswer()">Show Solution</button>
         </div>
+    </div>
+
+    <!-- Inline Bottom Teacher Workspace Station -->
+    <div class="teacher-inline-panel">
+        <div class="panel-heading">🛠️ Teacher Control Panel [Live Editor]</div>
         
-        <div id="teacher-bottom-panel">
-            <div class="panel-column">
-                <div>
-                    <label>Player Profiles / Names</label>
-                    <div class="inline-inputs">
-                        <input type="text" id="team1Input" value="RED-UNIT" onchange="syncControllerSettings()">
-                        <input type="text" id="team2Input" value="GRN-UNIT" onchange="syncControllerSettings()">
-                    </div>
-                </div>
-                <div>
-                    <label>Clock Setup (Sec)</label>
-                    <input type="number" id="timerInput" value="60" min="10" onchange="syncControllerSettings()">
-                </div>
-            </div>
-
-            <div class="panel-column">
-                <div>
-                    <label>Category Module</label>
-                    <select id="categoryInput" onchange="updateRuleOptions()">
-                        <option value="numbers">Numbers (1 - 100)</option>
-                        <option value="words">Vocabulary Words</option>
-                        <option value="custom">Custom Words (Teacher Mode)</option>
-                    </select>
-                </div>
-                <div id="rule-select-group">
-                    <label>Target Active Ruleset</label>
-                    <select id="ruleInput" onchange="syncControllerSettings()">
-                        </select>
-                </div>
-            </div>
-
-            <div class="panel-column" id="custom-setup-group" style="flex: 1.5; display: none;">
-                <div style="display:flex; gap:0.4rem; height:100%;">
-                    <div style="flex:1;">
-                        <label>Instruction / Action Command</label>
-                        <input type="text" id="customCommand" value="CATCH THE MAMMALS!" style="font-size:1.1rem;">
-                        <button class="btn-panel-action" onclick="applyCustomDataPushed()" style="background:#ff9f43; font-size:0.55rem; padding:4px;">RELOAD WORD MATRIX</button>
-                    </div>
-                    <div style="flex:1;">
-                        <label>Correct Tokens (Comma separated)</label>
-                        <textarea id="customCorrect" style="height:55px; font-size:1.1rem;" placeholder="Cat, Dog, Cow"></textarea>
-                    </div>
-                    <div style="flex:1;">
-                        <label>Wrong Distractors (Comma separated)</label>
-                        <textarea id="customWrong" style="height:55px; font-size:1.1rem;" placeholder="Ant, Bee, Owl"></textarea>
-                    </div>
-                </div>
-            </div>
-
-            <div class="panel-column" style="max-width:180px; justify-content:center;">
-                <button class="btn-panel-action" onclick="restartMatchCore()">RESET MATCH</button>
-                <button class="btn-panel-action danger" onclick="endGameEarlyOverride()">ABORT MATCH</button>
-            </div>
+        <div id="panelFormGroup" class="panel-grid">
+            <!-- Programmatic loops map editing inputs here instantly -->
         </div>
-    </div>
 
-    <div id="gameover-screen" class="screen">
-        <div class="winner-card">
-            <div id="winnerText">RED-UNIT WINS!</div>
-            <div class="final-scores">
-                <div style="color: var(--team1-color)"><span id="finalTeam1Name">RED</span>:<span id="finalScore1">0</span></div>
-                <div style="color: var(--team2-color)"><span id="finalTeam2Name">GRN</span>:<span id="finalScore2">0</span></div>
-            </div>
-            <button class="btn-retro" onclick="resetToSetupScreenView()">RETRY STAGE</button>
+        <div class="panel-save-container">
+            <button class="action-btn" onclick="saveConfigData()">Compile & Rebuild Grid</button>
         </div>
     </div>
 
     <script>
-        const wordLists = {
-            animals: ["🐶", "🐱", "🦁", "🐯", "🐻", "🐘", "🐵", "🦒", "🦓", "🐧", "🐬", "🦈", "🦅", "🐍"],
-            foods: ["🍎", "🍕", "🍞", "🧀", "🍌", "🍔", "🥕", "🍪", "🍇", "🌮", "🥗", "🍜", "🍗", "🍚"],
-            verbs: ["🏃", "🏊", "📖", "✍️", "🎮", "💃", "🎤", "🚶", "🧗", "✈️"],
-            colors: ["🔴", "🔵", "🟢", "🟡", "🟣", "🟠", "⚫", "⚪"]
-        };
-
-        const ruleDefinitions = {
-            numbers: [
-                { id: "even", label: "FIND EVEN NUMBERS" },
-                { id: "odd", label: "FIND ODD NUMBERS" },
-                { id: "gt50", label: "FIND NUMBERS > 50" },
-                { id: "lt50", label: "FIND NUMBERS < 50" },
-                { id: "mult5", label: "FIND MULTIPLES OF 5" }
-            ],
-            words: [
-                { id: "animals", label: "FIND THE ANIMALS 🐶" },
-                { id: "foods", label: "FIND THE FOODS 🍕" },
-                { id: "verbs", label: "FIND THE ACTION VERBS" },
-                { id: "colors", label: "FIND THE COLORS 🔴" }
-            ]
-        };
-
-        let gameState = {
-            team1Name: 'RED-UNIT',
-            team2Name: 'GRN-UNIT',
-            timer: 60,
-            score1: 0,
-            score2: 0,
-            category: 'numbers',
-            rule: 'even',
-            isPlaying: false,
-            objectsPerZone: 10,
-            speedMultiplier: 1,
-            customCorrect: ["Cat", "Dog", "Cow"],
-            customWrong: ["Ant", "Bee", "Owl"],
-            customCommand: 'CATCH THE MAMMALS!'
-        };
-
-        let activeObjects = { 1: [], 2: [] };
-        let animationFrameId;
-        let timerIntervalId;
-        let difficultyIntervalId;
-        let audioCtx = null;
-        const bubbleRadius = 45; 
-
-        function updateRuleOptions() {
-            const cat = document.getElementById('categoryInput').value;
-            const ruleSelectGroup = document.getElementById('rule-select-group');
-            const customSetupGroup = document.getElementById('custom-setup-group');
-            const ruleSelect = document.getElementById('ruleInput');
-            
-            gameState.category = cat;
-
-            if (cat === 'custom') {
-                ruleSelectGroup.style.display = 'none';
-                customSetupGroup.style.display = 'block';
-            } else {
-                ruleSelectGroup.style.display = 'block';
-                customSetupGroup.style.display = 'none';
-                ruleSelect.innerHTML = '';
-                
-                ruleDefinitions[cat].forEach(rule => {
-                    const opt = document.createElement('option');
-                    opt.value = rule.id;
-                    opt.innerText = rule.label;
-                    ruleSelect.appendChild(opt);
-                });
-                gameState.rule = ruleSelect.value;
+        // Internal Global Content Storage Template Block
+        let gameData = [
+            {
+                category: "Algebra",
+                clues: [
+                    { value: 100, q: "SOLVE FOR X: 2X + 5 = 15", a: "ANSWER: X = 5" },
+                    { value: 200, q: "WHAT IS THE SLOPE OF THE LINE Y = -3X + 7?", a: "ANSWER: -3" },
+                    { value: 300, q: "FACTOR COMPLETELY: X² - 9", a: "ANSWER: (X + 3)(X - 3)" },
+                    { value: 400, q: "SOLVE FOR Y: 3(Y - 2) = 12", a: "ANSWER: Y = 6" }
+                ]
+            },
+            {
+                category: "Geometry",
+                clues: [
+                    { value: 100, q: "HOW MANY DEGREES ARE IN A STRAIGHT ANGLE?", a: "ANSWER: 180 DEGREES" },
+                    { value: 200, q: "FIND THE AREA OF A TRIANGLE WITH BASE 6CM AND HEIGHT 4CM.", a: "ANSWER: 12 CM²" },
+                    { value: 300, q: "WHAT IS THE GEOMETRIC TERM FOR A REGULAR 8-SIDED POLYGON?", a: "ANSWER: OCTAGON" },
+                    { value: 400, q: "STATE THE PYTHAGOREAN THEOREM FORMULA.", a: "ANSWER: A² + B² = C²" }
+                ]
+            },
+            {
+                category: "Fractions",
+                clues: [
+                    { value: 100, q: "SIMPLIFY THE FRACTION 8/12 TO ITS LOWEST TERMS.", a: "ANSWER: 2/3" },
+                    { value: 200, q: "WHAT IS 3/4 MULTIPLIED BY 2/3?", a: "ANSWER: 6/12 OR 1/2" },
+                    { value: 300, q: "CONVERT 2.75 INTO A MIXED FRACTION.", a: "ANSWER: 2 3/4" },
+                    { value: 400, q: "WHICH FRACTION IS LARGER: 5/8 OR 7/12?", a: "ANSWER: 5/8" }
+                ]
+            },
+            {
+                category: "Problems",
+                clues: [
+                    { value: 100, q: "SAM BOUGHT 4 NOTEBOOKS FOR $3 EACH. PAID WITH $20. FIND CHANGE.", a: "ANSWER: $8" },
+                    { value: 200, q: "A TRAIN TRAVELS AT 60 MPH. HOW LONG TO GO 210 MILES?", a: "ANSWER: 3.5 HOURS" },
+                    { value: 300, q: "SUM OF THREE CONSECUTIVE INTEGERS IS 45. FIND SMALLEST.", a: "ANSWER: 14" },
+                    { value: 400, q: "A SHOE STORE OFFERS A 20% DISCOUNT ON A $80 PAIR. SALE PRICE?", a: "ANSWER: $64" }
+                ]
             }
-            syncControllerSettings();
-        }
-        updateRuleOptions();
+        ];
 
-        function switchScreen(screenId) {
-            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-            document.getElementById(screenId).classList.add('active');
-        }
+        let currentAnswer = "";
 
-        function initAudio() {
-            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-            if (audioCtx.state === 'suspended') audioCtx.resume();
-        }
-
-        function playSound(type) {
-            if (!audioCtx) return;
-            const osc = audioCtx.createOscillator();
-            const gainNode = audioCtx.createGain();
-            osc.connect(gainNode);
-            gainNode.connect(audioCtx.destination);
-            const now = audioCtx.currentTime;
-
-            if (type === 'correct') {
-                osc.type = 'square';
-                osc.frequency.setValueAtTime(400, now);
-                osc.frequency.setValueAtTime(800, now + 0.08);
-                gainNode.gain.setValueAtTime(0.15, now);
-                gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.15);
-                osc.start(now);
-                osc.stop(now + 0.15);
-            } else if (type === 'wrong') {
-                osc.type = 'sawtooth';
-                osc.frequency.setValueAtTime(180, now);
-                osc.frequency.linearRampToValueAtTime(60, now + 0.2);
-                gainNode.gain.setValueAtTime(0.2, now);
-                gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.2);
-                osc.start(now);
-                osc.stop(now + 0.2);
-            } else if (type === 'win') {
-                osc.type = 'square';
-                osc.frequency.setValueAtTime(600, now);
-                osc.frequency.setValueAtTime(900, now + 0.1);
-                osc.frequency.setValueAtTime(1200, now + 0.2);
-                gainNode.gain.setValueAtTime(0.15, now);
-                gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.4);
-                osc.start(now);
-                osc.stop(now + 0.4);
-            }
-        }
-
-        function syncControllerSettings() {
-            gameState.team1Name = document.getElementById('team1Input').value.trim() || 'RED-UNIT';
-            gameState.team2Name = document.getElementById('team2Input').value.trim() || 'GRN-UNIT';
+        // Build active gaming matrix configuration setup
+        function initBoard() {
+            const board = document.getElementById('gameBoard');
+            board.innerHTML = "";
             
-            document.getElementById('team1-display').innerText = gameState.team1Name;
-            document.getElementById('team2-display').innerText = gameState.team2Name;
-
-            if (gameState.category !== 'custom') {
-                gameState.rule = document.getElementById('ruleInput').value;
-                const ruleObj = ruleDefinitions[gameState.category].find(r => r.id === gameState.rule);
-                document.getElementById('current-rule').innerText = `RULE: ${ruleObj.label}`;
-            }
-        }
-
-        function applyCustomDataPushed() {
-            const parseWords = (text) => text.split(/[\n,]+/).map(w => w.trim()).filter(w => w.length > 0);
-            gameState.customCorrect = parseWords(document.getElementById('customCorrect').value);
-            gameState.customWrong = parseWords(document.getElementById('customWrong').value);
-            gameState.customCommand = document.getElementById('customCommand').value || "FIND MATCHES!";
-            
-            document.getElementById('current-rule').innerText = `RULE: ${gameState.customCommand.toUpperCase()}`;
-            
-            // Re-generate tokens on playground for immediate action tracking
-            if (gameState.isPlaying) {
-                document.getElementById('zone-1').innerHTML = '';
-                document.getElementById('zone-2').innerHTML = '';
-                activeObjects[1] = [];
-                activeObjects[2] = [];
-                for(let i=0; i < gameState.objectsPerZone; i++) {
-                    spawnObject(1);
-                    spawnObject(2);
-                }
-            }
-        }
-
-        function startGame() {
-            initAudio();
-            syncControllerSettings();
-
-            gameState.timer = parseInt(document.getElementById('timerInput').value) || 60;
-            gameState.score1 = 0;
-            gameState.score2 = 0;
-            gameState.isPlaying = true;
-            gameState.speedMultiplier = 1;
-
-            if (gameState.category === 'custom') {
-                applyCustomDataPushed();
-            }
-
-            updateHUD();
-
-            document.getElementById('zone-1').innerHTML = '';
-            document.getElementById('zone-2').innerHTML = '';
-            activeObjects[1] = [];
-            activeObjects[2] = [];
-
-            for(let i=0; i < gameState.objectsPerZone; i++) {
-                spawnObject(1);
-                spawnObject(2);
-            }
-
-            if (!animationFrameId) gameLoop();
-            
-            clearInterval(timerIntervalId);
-            timerIntervalId = setInterval(tickTimer, 1000);
-            
-            clearInterval(difficultyIntervalId);
-            difficultyIntervalId = setInterval(() => {
-                if(gameState.isPlaying) gameState.speedMultiplier += 0.12;
-            }, 8000);
-        }
-
-        function tickTimer() {
-            if (!gameState.isPlaying) return;
-            gameState.timer--;
-            updateHUD();
-            if (gameState.timer <= 0) endGame();
-        }
-
-        function updateHUD() {
-            document.getElementById('score1').innerText = String(gameState.score1).padStart(3, '0');
-            document.getElementById('score2').innerText = String(gameState.score2).padStart(3, '0');
-            document.getElementById('timer').innerText = gameState.timer;
-        }
-
-        function generateValue() {
-            let forceCorrect = Math.random() < 0.45;
-            let value, isTarget;
-
-            if (gameState.category === 'custom') {
-                if (forceCorrect && gameState.customCorrect.length) {
-                    value = gameState.customCorrect[Math.floor(Math.random() * gameState.customCorrect.length)];
-                    isTarget = true;
-                } else if (gameState.customWrong.length) {
-                    value = gameState.customWrong[Math.floor(Math.random() * gameState.customWrong.length)];
-                    isTarget = false;
-                } else {
-                    value = "???";
-                    isTarget = false;
-                }
-            } else if (gameState.category === 'numbers') {
-                value = Math.floor(Math.random() * 100) + 1;
-                const checkNum = (n) => {
-                    if (gameState.rule === 'even') return n % 2 === 0;
-                    if (gameState.rule === 'odd') return n % 2 !== 0;
-                    if (gameState.rule === 'gt50') return n > 50;
-                    if (gameState.rule === 'lt50') return n < 50;
-                    if (gameState.rule === 'mult5') return n % 5 === 0;
-                };
-                if (forceCorrect) {
-                    let iterations = 0;
-                    while(!checkNum(value) && iterations < 50) {
-                        value = Math.floor(Math.random() * 100) + 1;
-                        iterations++;
-                    }
-                }
-                isTarget = checkNum(value);
-            } else {
-                let pool = [];
-                let correctPool = wordLists[gameState.rule];
-                Object.keys(wordLists).forEach(key => {
-                    if (key !== gameState.rule) pool = pool.concat(wordLists[key]);
-                });
-                if (forceCorrect && correctPool) {
-                    value = correctPool[Math.floor(Math.random() * correctPool.length)];
-                    isTarget = true;
-                } else {
-                    value = pool[Math.floor(Math.random() * pool.length)];
-                    isTarget = false;
-                }
-            }
-            return { value, isTarget };
-        }
-
-        function spawnObject(teamId) {
-            const zone = document.getElementById(`zone-${teamId}`);
-            const data = generateValue();
-            
-            const el = document.createElement('div');
-            el.className = 'bubble';
-            el.innerText = data.value;
-
-            const padding = 60;
-            const width = zone.clientWidth || window.innerWidth / 2;
-            const height = zone.clientHeight || window.innerHeight - 290;
-            
-            let x = padding + Math.random() * (width - padding * 2);
-            let y = padding + Math.random() * (height - padding * 2);
-
-            const speedBase = (Math.random() * 1.0 + 0.8);
-            let vx = speedBase * (Math.random() > 0.5 ? 1 : -1);
-            let vy = speedBase * (Math.random() > 0.5 ? 1 : -1);
-
-            el.style.color = teamId === 1 ? 'var(--team1-color)' : 'var(--team2-color)';
-            el.style.borderColor = teamId === 1 ? 'var(--team1-color)' : 'var(--team2-color)';
-
-            el.onpointerdown = (e) => handleObjectClick(e, el, data.isTarget, teamId);
-            zone.appendChild(el);
-
-            activeObjects[teamId].push({
-                element: el,
-                x: x,
-                y: y,
-                vx: vx,
-                vy: vy,
-                radius: bubbleRadius,
-                isTarget: data.isTarget
+            // Layout Category Headings Rows
+            gameData.forEach(cat => {
+                const header = document.createElement('div');
+                header.className = 'category-header';
+                header.innerText = cat.category;
+                board.appendChild(header);
             });
-        }
 
-        function handleObjectClick(e, element, isTarget, teamId) {
-            if (!gameState.isPlaying) return;
-            const zone = document.getElementById(`zone-${teamId}`);
-            
-            const fb = document.createElement('div');
-            fb.className = 'feedback';
-            fb.style.left = `${e.clientX - zone.getBoundingClientRect().left}px`;
-            fb.style.top = `${e.clientY - zone.getBoundingClientRect().top}px`;
-
-            if (isTarget) {
-                playSound('correct');
-                fb.innerText = '+10';
-                fb.style.color = '#2ed573';
-                zone.classList.remove('flash-green');
-                void zone.offsetWidth;
-                zone.classList.add('flash-green');
-                
-                if(teamId === 1) gameState.score1 += 10;
-                else gameState.score2 += 10;
-            } else {
-                playSound('wrong');
-                fb.innerText = '-05';
-                fb.style.color = '#ff4757';
-                zone.classList.remove('flash-red');
-                void zone.offsetWidth;
-                zone.classList.add('flash-red');
-
-                if(teamId === 1) gameState.score1 = Math.max(0, gameState.score1 - 5);
-                else gameState.score2 = Math.max(0, gameState.score2 - 5);
-            }
-
-            zone.appendChild(fb);
-            setTimeout(() => fb.remove(), 600);
-            updateHUD();
-
-            element.remove();
-            activeObjects[teamId] = activeObjects[teamId].filter(obj => obj.element !== element);
-            spawnObject(teamId);
-        }
-
-        function gameLoop() {
-            if (!gameState.isPlaying) {
-                animationFrameId = null;
-                return;
-            }
-
-            [1, 2].forEach(teamId => {
-                const zone = document.getElementById(`zone-${teamId}`);
-                const zWidth = zone.clientWidth;
-                const zHeight = zone.clientHeight;
-                const objects = activeObjects[teamId];
-
-                // Boundary collision management logic
-                objects.forEach(obj => {
-                    obj.x += obj.vx * gameState.speedMultiplier;
-                    obj.y += obj.vy * gameState.speedMultiplier;
-
-                    if (obj.x - obj.radius < 0) {
-                        obj.x = obj.radius;
-                        obj.vx *= -1;
-                    } else if (obj.x + obj.radius > zWidth) {
-                        obj.x = zWidth - obj.radius;
-                        obj.vx *= -1;
-                    }
-
-                    if (obj.y - obj.radius < 0) {
-                        obj.y = obj.radius;
-                        obj.vy *= -1;
-                    } else if (obj.y + obj.radius > zHeight) {
-                        obj.y = zHeight - obj.radius;
-                        obj.vy *= -1;
-                    }
-                });
-
-                // Elastic bubble collision tracking matrix
-                for (let i = 0; i < objects.length; i++) {
-                    for (let j = i + 1; j < objects.length; j++) {
-                        let o1 = objects[i];
-                        let o2 = objects[j];
-
-                        let dx = o2.x - o1.x;
-                        let dy = o2.y - o1.y;
-                        let distance = Math.sqrt(dx * dx + dy * dy);
-                        let minDist = o1.radius + o2.radius;
-
-                        if (distance < minDist) {
-                            let overlap = minDist - distance;
-                            let nx = dx / (distance || 1);
-                            let ny = dy / (distance || 1);
-
-                            o1.x -= nx * (overlap / 2);
-                            o1.y -= ny * (overlap / 2);
-                            o2.x += nx * (overlap / 2);
-                            o2.y += ny * (overlap / 2);
-
-                            let kx = o1.vx - o2.vx;
-                            let ky = o1.vy - o2.vy;
-                            let p = nx * kx + ny * ky;
-
-                            if (p > 0) {
-                                o1.vx -= p * nx;
-                                o1.vy -= p * ny;
-                                o2.vx += p * nx;
-                                o2.vy += p * ny;
-                            }
+            // Map and assemble sequential point cards
+            const numRows = gameData[0].clues.length;
+            for (let r = 0; r < numRows; r++) {
+                for (let c = 0; c < gameData.length; c++) {
+                    const clue = gameData[c].clues[r];
+                    const card = document.createElement('div');
+                    card.className = 'clue-card';
+                    card.innerText = `${clue.value}`;
+                    card.onclick = function() {
+                        if (!card.classList.contains('viewed')) {
+                            card.classList.add('viewed');
+                            showClue(clue.q, clue.a);
                         }
-                    }
+                    };
+                    board.appendChild(card);
                 }
+            }
+        }
 
-                // Push rendering translation vectors
-                objects.forEach(obj => {
-                    obj.element.style.transform = `translate(${obj.x}px, ${obj.y}px) translate(-50%, -50%)`;
+        function showClue(question, answer) {
+            currentAnswer = answer;
+            document.getElementById('modalText').innerText = question;
+            document.getElementById('revealBtn').style.display = 'inline-block';
+            document.getElementById('clueModal').style.display = 'flex';
+        }
+
+        function revealAnswer() {
+            document.getElementById('modalText').innerText = currentAnswer;
+            document.getElementById('revealBtn').style.display = 'none';
+        }
+
+        function closeModal() {
+            document.getElementById('clueModal').style.display = 'none';
+        }
+
+        function changeScore(id, amt) {
+            const scoreEl = document.getElementById(id);
+            let currentScore = parseInt(scoreEl.innerText);
+            let newScore = currentScore + amt;
+            // Pad display zeros for authentic arcade styling score counters
+            scoreEl.innerText = newScore < 0 ? newScore : String(newScore).padStart(3, '0');
+        }
+
+        // Render input panels layout components permanently embedded at bottom setup
+        function buildTeacherPanelUI() {
+            const container = document.getElementById('panelFormGroup');
+            container.innerHTML = "";
+            
+            gameData.forEach((catObj, catIdx) => {
+                const colNode = document.createElement('div');
+                colNode.className = 'panel-col';
+                
+                colNode.innerHTML = `
+                    <input type="text" class="panel-cat-input" id="cfg-cat-${catIdx}" value="${catObj.category}">
+                `;
+                
+                catObj.clues.forEach((clueObj, clueIdx) => {
+                    const editBlock = document.createElement('div');
+                    editBlock.className = 'clue-edit-box';
+                    editBlock.innerHTML = `
+                        <div class="clue-label">CLUE $${clueObj.value}</div>
+                        <input type="text" class="panel-input" id="cfg-q-${catIdx}-${clueIdx}" value="${clueObj.q.replace(/"/g, '&quot;')}">
+                        <input type="text" class="panel-input" id="cfg-a-${catIdx}-${clueIdx}" value="${clueObj.a.replace(/"/g, '&quot;')}">
+                    `;
+                    colNode.appendChild(editBlock);
+                });
+                
+                container.appendChild(colNode);
+            });
+        }
+
+        // Pull active parameters out from DOM form element configurations, maps tracking array, triggers redraws
+        function saveConfigData() {
+            gameData.forEach((catObj, catIdx) => {
+                const newCatName = document.getElementById(`cfg-cat-${catIdx}`).value;
+                if(newCatName.trim() !== "") {
+                    catObj.category = newCatName;
+                }
+                
+                catObj.clues.forEach((clueObj, clueIdx) => {
+                    clueObj.q = document.getElementById(`cfg-q-${catIdx}-${clueIdx}`).value;
+                    clueObj.a = document.getElementById(`cfg-a-${catIdx}-${clueIdx}`).value;
                 });
             });
-
-            animationFrameId = requestAnimationFrame(gameLoop);
+            
+            initBoard();
+            window.scrollTo({ top: 0, behavior: 'smooth' }); // Scroll up to display fresh board
         }
 
-        function restartMatchCore() {
-            startGame();
-        }
-
-        function endGameEarlyOverride() {
-            endGame();
-        }
-
-        function endGame() {
-            gameState.isPlaying = false;
-            cancelAnimationFrame(animationFrameId);
-            animationFrameId = null;
-            clearInterval(timerIntervalId);
-            clearInterval(difficultyIntervalId);
-            playSound('win');
-
-            let winText = "DRAW MATCH!";
-            if (gameState.score1 > gameState.score2) winText = `${gameState.team1Name} WINS!`;
-            else if (gameState.score2 > gameState.score1) winText = `${gameState.team2Name} WINS!`;
-
-            document.getElementById('winnerText').innerText = winText;
-            document.getElementById('finalTeam1Name').innerText = gameState.team1Name;
-            document.getElementById('finalTeam2Name').innerText = gameState.team2Name;
-            document.getElementById('finalScore1').innerText = gameState.score1;
-            document.getElementById('finalScore2').innerText = gameState.score2;
-
-            switchScreen('gameover-screen');
-        }
-
-        function resetToSetupScreenView() {
-            switchScreen('game-screen');
-            startGame();
-        }
+        window.onload = function() {
+            initBoard();
+            buildTeacherPanelUI();
+        };
     </script>
 </body>
 </html>
