@@ -37,10 +37,8 @@
             border-top: 4px solid var(--feud-gold);
         }
 
-        .full-width { grid-column: span 2; }
-
         label { display: block; font-weight: bold; margin: 10px 0 5px; color: #cbd5e0;}
-        input, select, textarea {
+        input, select {
             width: 100%; padding: 8px; box-sizing: border-box;
             background: #1a202c; border: 1px solid #4a5568;
             color: white; border-radius: 4px; font-size: 1rem;
@@ -76,11 +74,21 @@
         .score-box h4 { margin: 0 0 5px 0; text-transform: uppercase; font-size: 0.85rem;}
         .score-box .score-num { font-size: 1.8rem; font-weight: bold; color: var(--feud-gold); }
 
-        .ans-row { display: grid; grid-template-columns: 3fr 1fr 1fr; gap: 5px; margin-bottom: 5px; }
+        .ans-row { display: grid; grid-template-columns: 3fr 1fr; gap: 5px; margin-bottom: 5px; }
         .launcher-zone {
             background: #2b6cb0; text-align: center; padding: 15px; border-radius: 8px; margin-bottom: 20px;
         }
         .launcher-zone button { background: white; color: #2b6cb0; font-size: 1.2rem; }
+        
+        .multiplier-selector {
+            display: flex; gap: 5px; margin-top: 5px;
+        }
+        .mult-btn {
+            flex: 1; background: #4a5568; color: white; padding: 6px; font-size: 0.9rem; margin: 0;
+        }
+        .mult-btn.active {
+            background: #e53e3e; color: white; box-shadow: 0 0 10px rgba(229,62,62,0.5);
+        }
     </style>
 </head>
 <body>
@@ -88,7 +96,6 @@
     <div id="teacher-view">
         <div class="launcher-zone">
             <h2 style="color: white; margin: 0 0 10px 0;">🎥 Math Feud Setup</h2>
-            <p style="margin: 0 0 10px 0; color: #ebf8ff;">Connect your computer to the projector, then click the button below to launch the student view screen.</p>
             <button onclick="openProjectorWindow()">1. Open Projector Window</button>
         </div>
 
@@ -108,61 +115,110 @@
                 
                 <h2>2. Live Scoring Deck</h2>
                 <div class="score-grid" id="control-score-grid"></div>
-                <label>Strikes Counter:</label>
+                
+                <label>Round Value Multiplier:</label>
+                <div class="multiplier-selector">
+                    <button id="m1-btn" class="mult-btn active" onclick="setMultiplier(1)">Single Points</button>
+                    <button id="m2-btn" class="mult-btn" onclick="setMultiplier(2)">Double Points (x2)</button>
+                    <button id="m3-btn" class="mult-btn" onclick="setMultiplier(3)">Triple Points (x3)</button>
+                </div>
+
+                <label style="margin-top:15px;">Strikes Counter:</label>
                 <div>
-                    <button onclick="adjustStrikes(1)" class="danger" style="font-size:1.2rem;">⚠️ Add Strike (X)</button>
-                    <button onclick="adjustStrikes(0)" class="secondary">Reset X</button>
+                    <button onclick="adjustStrikes(1)" class="danger" style="font-size:1.1rem; width:100%;">⚠️ Add Strike (X)</button>
+                    <button onclick="adjustStrikes(0)" class="secondary" style="width:100%; margin-top:5px;">Reset X</button>
                 </div>
             </div>
 
             <div class="panel">
                 <h2>3. Question Bank</h2>
-                <p style="font-size: 0.9rem; color: #a0aec0;">Pre-populate your game database. Click "Push to Board" to activate a question instantly.</p>
-                
-                <div id="question-bank-list" style="max-height: 250px; overflow-y: auto; margin-bottom: 15px;">
+                <div id="question-bank-list" style="max-height: 250px; overflow-y: auto; margin-bottom: 15px; border: 1px solid #4a5568; padding: 5px; border-radius:4px;">
                     </div>
 
-                <h3 style="border-top: 1px solid #4a5568; padding-top: 15px;">Add / Edit Bank Question</h3>
+                <h3 style="border-top: 1px solid #4a5568; padding-top: 15px;">Add New Bank Question</h3>
                 <label>Question text:</label>
-                <input type="text" id="edit-q-text" placeholder="e.g., Name a famous mathematician">
+                <input type="text" id="edit-q-text" placeholder="e.g., Name an even prime number">
                 
-                <label>Answers & Point Targets:</label>
+                <label>Answers & Base Points:</label>
                 <div id="edit-answers-list">
                     </div>
-                <button onclick="addQuestionToBank()">Save to Question Bank</button>
+                <button onclick="addQuestionToBank()" style="width:100%;">Save to Question Bank</button>
             </div>
         </div>
     </div>
 
-    <div id="projector-view" class="hidden" style="display:none;">
+    <div id="projector-view" style="display:none;">
         <style>
             .projector-body {
                 background: radial-gradient(circle, #102a45 0%, #051026 100%);
                 color: white; margin: 0; padding: 30px; height: 100vh; box-sizing: border-box;
                 font-family: 'Arial Black', Impact, sans-serif; display: flex; flex-direction: column; justify-content: space-between;
+                overflow: hidden;
             }
-            .proj-header { text-align: center; font-size: 4rem; color: #f1b811; text-transform: uppercase; -webkit-text-stroke: 2px #fff; margin: 0;}
-            .proj-scores { display: flex; justify-content: center; gap: 30px; margin: 20px 0; }
-            .proj-team-card { background: linear-gradient(180deg, #0044cc 0%, #001155 100%); border: 5px solid #fff; border-radius: 12px; padding: 15px 30px; text-align: center; min-width: 200px; box-shadow: 0 10px 20px rgba(0,0,0,0.5); }
-            .proj-team-card.active { border-color: #f1b811; box-shadow: 0 0 30px #f1b811; }
-            .proj-team-name { font-size: 1.8rem; text-transform: uppercase; letter-spacing: 1px;}
-            .proj-team-score { font-size: 4rem; color: #f1b811; margin-top: 10px;}
-            .proj-board { background: #030a21; border: 10px double #f1b811; border-radius: 30px; padding: 30px; flex-grow: 1; display: flex; flex-direction: column; justify-content: space-between; box-shadow: inset 0 0 40px #000; }
-            .proj-q-display { background: linear-gradient(180deg, #002266 0%, #001133 100%); border: 3px solid #f1b811; border-radius: 15px; padding: 20px; text-align: center; font-size: 2.3rem; min-height: 60px; display: flex; align-items: center; justify-content: center; text-shadow: 2px 2px 4px #000; color: #fff;}
-            .proj-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-            .proj-card-container { perspective: 1000px; height: 75px; }
+            .proj-header { text-align: center; font-size: 3.5rem; color: #f1b811; text-transform: uppercase; -webkit-text-stroke: 2px #fff; margin: 0;}
+            .proj-scores { display: flex; justify-content: center; gap: 30px; margin: 15px 0; }
+            
+            /* Score Card Transitions */
+            .proj-team-card { 
+                background: linear-gradient(180deg, #0044cc 0%, #001155 100%); 
+                border: 5px solid #fff; border-radius: 12px; padding: 10px 25px; 
+                text-align: center; min-width: 200px; 
+                box-shadow: 0 10px 20px rgba(0,0,0,0.5);
+                transition: all 0.4s ease;
+            }
+            .proj-team-card.active { border-color: #f1b811; box-shadow: 0 0 30px #f1b811; transform: scale(1.05); }
+            .proj-team-name { font-size: 1.6rem; text-transform: uppercase; letter-spacing: 1px;}
+            
+            /* Score counter keyframe update effect */
+            .proj-team-score { font-size: 3.8rem; color: #f1b811; margin-top: 5px; transition: all 0.3s ease;}
+            .score-changed { animation: scorePulse 0.6s ease-out; }
+            @keyframes scorePulse {
+                0% { transform: scale(1); color: #fff; text-shadow: 0 0 20px #fff; }
+                50% { transform: scale(1.3); color: #ffcc00; text-shadow: 0 0 30px #ffcc00; }
+                100% { transform: scale(1); color: #f1b811; }
+            }
+
+            .proj-board { background: #030a21; border: 10px double #f1b811; border-radius: 30px; padding: 25px; flex-grow: 1; display: flex; flex-direction: column; justify-content: space-between; box-shadow: inset 0 0 40px #000; }
+            
+            /* Question Text Animation */
+            .proj-q-display { 
+                background: linear-gradient(180deg, #002266 0%, #001133 100%); 
+                border: 3px solid #f1b811; border-radius: 15px; padding: 15px; 
+                text-align: center; font-size: 2.1rem; min-height: 60px; 
+                display: flex; align-items: center; justify-content: center; 
+                text-shadow: 2px 2px 4px #000; color: #fff;
+                transition: all 0.5s ease;
+            }
+            .q-changed { animation: qSwipe 0.5s ease-in-out; }
+            @keyframes qSwipe {
+                0% { opacity: 0; transform: translateY(-20px); }
+                100% { opacity: 1; transform: translateY(0); }
+            }
+
+            .proj-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 15px;}
+            .proj-card-container { perspective: 1000px; height: 70px; }
             .proj-card { width: 100%; height: 100%; position: relative; transform-style: preserve-3d; transition: transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
             .proj-card.flipped { transform: rotateX(180deg); }
             .proj-face { position: absolute; width: 100%; height: 100%; backface-visibility: hidden; border-radius: 10px; display: flex; align-items: center; box-sizing: border-box; border: 4px solid #fff; padding: 0 20px;}
             .proj-front { background: linear-gradient(135deg, #0055ff 0%, #0022aa 100%); justify-content: center; }
-            .proj-circle-num { background: #f1b811; color: black; border-radius: 50%; width: 45px; height: 45px; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; box-shadow: 0 3px 5px rgba(0,0,0,0.5); }
+            .proj-circle-num { background: #f1b811; color: black; border-radius: 50%; width: 42px; height: 42px; display: flex; align-items: center; justify-content: center; font-size: 1.6rem; box-shadow: 0 3px 5px rgba(0,0,0,0.5); }
             .proj-back { background: linear-gradient(135deg, #228b22 0%, #0f4d0f 100%); transform: rotateX(180deg); justify-content: space-between; border-color: #f1b811; }
-            .proj-ans-text { font-size: 1.8rem; text-transform: uppercase; text-shadow: 2px 2px #000; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 80%;}
-            .proj-ans-pts { background: #fff; color: black; padding: 5px 15px; font-size: 2rem; border-radius: 5px; min-width: 50px; text-align: center; font-weight: bold;}
-            .proj-strike-zone { font-size: 5rem; color: #ff2222; text-shadow: 0 0 20px #ff0000; text-align: center; height: 90px; letter-spacing: 15px;}
+            .proj-ans-text { font-size: 1.6rem; text-transform: uppercase; text-shadow: 2px 2px #000; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 80%;}
+            .proj-ans-pts { background: #fff; color: black; padding: 3px 12px; font-size: 1.8rem; border-radius: 5px; min-width: 45px; text-align: center; font-weight: bold;}
+            
+            /* Strike animations */
+            .proj-strike-zone { font-size: 5.5rem; color: #ff2222; text-shadow: 0 0 20px #ff0000; text-align: center; height: 90px; letter-spacing: 15px;}
+            .strike-flash { animation: strikeBlam 0.4s ease-in-out 2; }
+            @keyframes strikeBlam {
+                0% { transform: scale(1); filter: brightness(1); }
+                50% { transform: scale(1.4); filter: brightness(1.5); }
+                100% { transform: scale(1); filter: brightness(1); }
+            }
+            .badge-mult { background: #e53e3e; color: white; padding: 2px 10px; border-radius: 20px; font-size: 1rem; position: absolute; top: 15px; right: 15px; font-family: sans-serif; border: 1px solid white;}
         </style>
         
         <div class="projector-body">
+            <span class="badge-mult" id="proj-mult-indicator">SINGLE POINTS</span>
             <h1 class="proj-header">Math Feud</h1>
             <div class="proj-scores" id="proj-scores-target"></div>
             
@@ -175,25 +231,24 @@
     </div>
 
     <script>
-        // Default Sample Math Bank Data
+        // Array holding the loaded question database
         let questionBank = [
             {
                 question: "Name a tool used in Geometry class",
                 answers: [
-                    {text: "Ruler / Straightedge", pts: 45, open: false},
-                    {text: "Protractor", pts: 32, open: false},
-                    {text: "Compass", pts: 18, open: false},
-                    {text: "Pencil", pts: 5, open: false}
+                    {text: "Ruler / Straightedge", pts: 45},
+                    {text: "Protractor", pts: 32},
+                    {text: "Compass", pts: 18},
+                    {text: "Pencil", pts: 5}
                 ]
             },
             {
                 question: "Name a topic studied in Algebra",
                 answers: [
-                    {text: "Equations / Solving for X", pts: 50, open: false},
-                    {text: "Graphing / Slopes", pts: 25, open: false},
-                    {text: "Polynomials", pts: 12, open: false},
-                    {text: "Functions", pts: 8, open: false},
-                    {text: "Matrices", pts: 3, open: false}
+                    {text: "Equations / Solving for X", pts: 50},
+                    {text: "Graphing / Slopes", pts: 25},
+                    {text: "Polynomials", pts: 12},
+                    {text: "Functions", pts: 8}
                 ]
             }
         ];
@@ -203,30 +258,32 @@
             answers: [],
             strikes: 0,
             activeTeam: 0,
+            multiplier: 1,
             teams: [
                 {name: "Team 1", score: 0},
                 {name: "Team 2", score: 0}
             ]
         };
 
-        // Determine mode based on URL query parameter
+        // Cache trackers for animations
+        let lastScores = [];
+        let lastQuestion = "";
+        let lastStrikes = 0;
+
         const urlParams = new URLSearchParams(window.location.search);
         const isProjectorView = urlParams.get('view') === 'projector';
 
         window.onload = function() {
             if (isProjectorView) {
-                // morph page to clean projector screen format
                 document.getElementById('teacher-view').remove();
                 document.getElementById('projector-view').style.display = 'block';
                 listenToController();
             } else {
-                // load Teacher controller panel interfaces
                 initTeams();
                 renderAnswerInputs();
                 renderQuestionBank();
                 syncToLocalStorage();
                 
-                // Keep controller panel updated if variables modify externally
                 window.addEventListener('storage', () => {
                     const data = localStorage.getItem('mathFeudState');
                     if (data) {
@@ -237,9 +294,8 @@
             }
         };
 
-        /* ================= TEACHER DASHBOARD CODE ================= */
+        /* ================= TEACHER CONTROLS ================= */
         function openProjectorWindow() {
-            // Opens this exact index.html page but appends '?view=projector' to strip the admin elements
             window.open(window.location.href + "?view=projector", "MathFeudProjector", "width=1024,height=768");
         }
 
@@ -248,7 +304,6 @@
             const container = document.getElementById('team-name-inputs');
             container.innerHTML = '';
             
-            // Adjust internal state arrays safely
             const oldTeams = [...gameState.teams];
             gameState.teams = [];
             
@@ -259,7 +314,7 @@
                 gameState.teams.push({ name: oldName, score: oldScore });
                 container.innerHTML += `
                     <div style="margin-bottom:5px;">
-                        <input type="text" id="t-input-${i}" value="${oldName}" style="width:70%; display:inline-block;">
+                        <input type="text" id="t-input-${i}" value="${oldName}" style="width:55%; display:inline-block;">
                         <button onclick="manualScoreAdjust(${i}, 5)" class="secondary" style="padding:4px 8px; margin:0;">+5</button>
                         <button onclick="manualScoreAdjust(${i}, -5)" class="danger" style="padding:4px 8px; margin:0;">-5</button>
                     </div>
@@ -284,7 +339,7 @@
             for(let i=0; i<6; i++) {
                 grid.innerHTML += `
                     <div class="ans-row">
-                        <input type="text" id="new-ans-text-${i}" placeholder="Answer option">
+                        <input type="text" id="new-ans-text-${i}" placeholder="Answer Option">
                         <input type="number" id="new-ans-pts-${i}" placeholder="Pts">
                     </div>
                 `;
@@ -296,48 +351,60 @@
             list.innerHTML = '';
             questionBank.forEach((item, index) => {
                 list.innerHTML += `
-                    <div class="q-list-item">
-                        <div>
+                    <div class="q-list-item" id="q-bank-item-${index}">
+                        <div style="max-width: 70%;">
                             <strong>Q: ${item.question}</strong><br>
-                            <small style="color:#a0aec0;">(${item.answers.length} answers)</small>
+                            <small style="color:#a0aec0;">(${item.answers.length} options)</small>
                         </div>
                         <div>
-                            <button onclick="pushBankToLive(${index})" class="secondary" style="background:#2b6cb0;color:white;margin:0;font-size:0.8rem;">Push to Board</button>
+                            <button onclick="pushBankToLive(${index})" class="secondary" style="background:#2b6cb0;color:white;margin:0;padding:4px 8px;font-size:0.8rem;">Push</button>
+                            <button onclick="deleteQuestion(${index})" class="danger" style="margin:0;padding:4px 8px;font-size:0.8rem;">Delete</button>
                         </div>
                     </div>
                 `;
             });
         }
 
+        function deleteQuestion(index) {
+            if(confirm("Are you sure you want to remove this question from your bank?")) {
+                questionBank.splice(index, 1);
+                renderQuestionBank();
+            }
+        }
+
         function addQuestionToBank() {
             const qText = document.getElementById('edit-q-text').value.trim();
-            if(!qText) return alert("Please type a question prompt.");
+            if(!qText) return alert("Please specify a question prompt.");
             
             let answers = [];
             for(let i=0; i<6; i++) {
                 const txt = document.getElementById(`new-ans-text-${i}`).value.trim();
                 const pts = parseInt(document.getElementById(`new-ans-pts-${i}`).value) || 0;
                 if(txt) {
-                    answers.push({ text: txt, pts: pts, open: false });
+                    answers.push({ text: txt, pts: pts });
                 }
             }
             
             questionBank.push({ question: qText, answers: answers });
             renderQuestionBank();
             
-            // clear entry forms
             document.getElementById('edit-q-text').value = '';
             renderAnswerInputs();
+        }
+
+        function setMultiplier(factor) {
+            gameState.multiplier = factor;
+            document.querySelectorAll('.mult-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(`m${factor}-btn`).classList.add('active');
+            syncToLocalStorage();
         }
 
         function pushBankToLive(index) {
             const bankItem = questionBank[index];
             gameState.currentQuestion = bankItem.question;
-            // deep copy answers
             gameState.answers = bankItem.answers.map(a => ({...a, open: false}));
             gameState.strikes = 0;
             
-            // Highlight item item
             document.querySelectorAll('.q-list-item').forEach((el, idx) => {
                 if(idx === index) el.classList.add('active-q');
                 else el.classList.remove('active-q');
@@ -357,14 +424,10 @@
                     <div class="score-box ${isActive}" onclick="setActiveTeam(${i})" style="cursor:pointer;">
                         <h4>${team.name}</h4>
                         <div class="score-num">${team.score}</div>
-                        <small style="color:#718096;">(Click to target points)</small>
                     </div>
                 `;
             });
 
-            // Sync answer controllers on dashboard
-            const bankForm = document.getElementById('edit-answers-list');
-            // Show status panel of currently running puzzle below the score deck
             let liveControlDeck = document.getElementById('live-control-deck');
             if(!liveControlDeck) {
                 liveControlDeck = document.createElement('div');
@@ -372,13 +435,13 @@
                 document.getElementById('control-score-grid').parentNode.appendChild(liveControlDeck);
             }
             
-            let html = `<h3 style="margin-top:20px;">Board Actions</h3><p><strong>Active Question:</strong> ${gameState.currentQuestion}</p>`;
+            let html = `<h3 style="margin-top:20px;">Board Actions (Multiplier: x${gameState.multiplier})</h3><p><strong>Active:</strong> ${gameState.currentQuestion}</p>`;
             gameState.answers.forEach((ans, i) => {
-                const btnLabel = ans.open ? "REVEALED" : "REVEAL NOW";
+                const btnLabel = ans.open ? "REVEALED" : "REVEAL";
                 const btnColor = ans.open ? "#2f855a" : "#2b6cb0";
                 html += `
-                    <div style="display:flex; justify-content:space-between; align-items:center; background:#1a202c; padding:8px; margin-bottom:5px; border-radius:4px;">
-                        <span>${i+1}. ${ans.text} (${ans.pts} pts)</span>
+                    <div style="display:flex; justify-content:space-between; align-items:center; background:#1a202c; padding:6px; margin-bottom:5px; border-radius:4px;">
+                        <span>${i+1}. ${ans.text} (${ans.pts} pts Base)</span>
                         <button onclick="revealLiveAnswer(${i})" style="margin:0; padding:4px 8px; background:${btnColor}; color:white; font-size:0.8rem;">${btnLabel}</button>
                     </div>
                 `;
@@ -402,11 +465,10 @@
         function revealLiveAnswer(index) {
             if(!gameState.answers[index].open) {
                 gameState.answers[index].open = true;
-                // automatically reward points to the chosen active team target
+                const finalPoints = gameState.answers[index].pts * gameState.multiplier;
                 const targetTeam = gameState.activeTeam;
-                gameState.teams[targetTeam].score += gameState.answers[index].pts;
+                gameState.teams[targetTeam].score += finalPoints;
             } else {
-                // toggle hide alternative state if desired
                 gameState.answers[index].open = false;
             }
             syncToLocalStorage();
@@ -424,15 +486,10 @@
         }
 
 
-        /* ================= STUDENT PROJECTOR VIEW CODE ================= */
+        /* ================= PROJECTOR VIEW ANIMATIONS ================= */
         function listenToController() {
-            // Read status on setup load
             renderProjectorUI();
-            
-            // Watch local storage strings changes instantly pushed by teacher console window
-            window.addEventListener('storage', () => {
-                renderProjectorUI();
-            });
+            window.addEventListener('storage', () => { renderProjectorUI(); });
         }
 
         function renderProjectorUI() {
@@ -440,34 +497,60 @@
             if (!data) return;
             const state = JSON.parse(data);
 
-            // 1. Output question
-            document.getElementById('proj-q-target').innerText = state.currentQuestion;
+            // 1. Point Multiplier Indicator Display Text
+            const multLabels = ["", "SINGLE POINTS", "DOUBLE POINTS (x2)", "TRIPLE POINTS (x3)"];
+            document.getElementById('proj-mult-indicator').innerText = multLabels[state.multiplier] || "SINGLE POINTS";
 
-            // 2. Output teams and scores
+            // 2. Question Text Update Animation Trigger
+            const qTarget = document.getElementById('proj-q-target');
+            if (state.currentQuestion !== lastQuestion) {
+                qTarget.innerText = state.currentQuestion;
+                qTarget.classList.remove('q-changed');
+                void qTarget.offsetWidth; // Trigger DOM reflow to restart animation sequence
+                qTarget.classList.add('q-changed');
+                lastQuestion = state.currentQuestion;
+            }
+
+            // 3. Score Tracker + Pop Animation Trigger
             const scoreContainer = document.getElementById('proj-scores-target');
             scoreContainer.innerHTML = '';
             state.teams.forEach((team, idx) => {
                 const activeClass = state.activeTeam === idx ? 'active' : '';
+                
+                // Compare to verify if score numeric value shifted upward or downward
+                let triggerScoreClass = "";
+                if (lastScores[idx] !== undefined && lastScores[idx] !== team.score) {
+                    triggerScoreClass = "score-changed";
+                }
+
                 scoreContainer.innerHTML += `
                     <div class="proj-team-card ${activeClass}">
                         <div class="proj-team-name">${team.name}</div>
-                        <div class="proj-team-score">${team.score}</div>
+                        <div class="proj-team-score ${triggerScoreClass}">${team.score}</div>
                     </div>
                 `;
+                lastScores[idx] = team.score;
             });
 
-            // 3. Render strike panel configuration
+            // 4. Strike Warning Container Flash Trigger
+            const strikeTarget = document.getElementById('proj-strike-target');
             let strikeStr = '';
-            for(let s=0; s<state.strikes; s++) {
-                strikeStr += 'X ';
+            for(let s=0; s<state.strikes; s++) { strikeStr += 'X '; }
+            strikeTarget.innerText = strikeStr;
+            
+            if (state.strikes > lastStrikes) {
+                strikeTarget.classList.remove('strike-flash');
+                void strikeTarget.offsetWidth;
+                strikeTarget.classList.add('strike-flash');
             }
-            document.getElementById('proj-strike-target').innerText = strikeStr;
+            lastStrikes = state.strikes;
 
-            // 4. Render main puzzle matrix cards
+            // 5. Main Grid Card Matrix
             const gridContainer = document.getElementById('proj-grid-target');
             gridContainer.innerHTML = '';
             state.answers.forEach((ans, idx) => {
                 const isFlipped = ans.open ? 'flipped' : '';
+                const displayPoints = ans.pts * state.multiplier; // Scale displayed value automatically
                 gridContainer.innerHTML += `
                     <div class="proj-card-container">
                         <div class="proj-card ${isFlipped}">
@@ -476,7 +559,7 @@
                             </div>
                             <div class="proj-face proj-back">
                                 <div class="proj-ans-text">${ans.text}</div>
-                                <div class="proj-ans-pts">${ans.pts}</div>
+                                <div class="proj-ans-pts">${displayPoints}</div>
                             </div>
                         </div>
                     </div>
