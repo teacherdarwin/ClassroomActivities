@@ -3,568 +3,491 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Math Feud - Master Controller</title>
+    <title>Math Feud - Master Control</title>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --feud-blue: #07123a;
-            --feud-gold: #f1b811;
-            --feud-dark: #111;
+            --gold: #f1b811;
+            --gold-light: #ffe08a;
+            --gold-dark: #b38600;
+            --blue-dark: #051026;
+            --blue-medium: #0a1f44;
+            --blue-light: #1a3a6d;
+            --danger: #ff4757;
+            --success: #2ed573;
+            --glass: rgba(255, 255, 255, 0.05);
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #1a202c;
-            color: #e2e8f0;
+            font-family: 'Poppins', sans-serif;
+            background: radial-gradient(circle at top right, var(--blue-medium), var(--blue-dark));
+            color: #f1f2f6;
             margin: 0;
             padding: 20px;
+            min-height: 100vh;
         }
 
-        h1, h2, h3 { color: var(--feud-gold); margin-top: 0; }
-        
-        .container {
-            max-width: 1200px;
+        h1, h2, h3 { 
+            font-family: 'Bebas Neue', sans-serif; 
+            letter-spacing: 2px; 
+            color: var(--gold);
+            margin-top: 0;
+        }
+
+        /* Container Layout */
+        .master-container {
+            max-width: 1300px;
             margin: 0 auto;
             display: grid;
-            grid-template-columns: 1fr 2fr;
-            gap: 20px;
+            grid-template-columns: 350px 1fr;
+            gap: 25px;
         }
 
+        /* Elegant Cards */
         .panel {
-            background: #2d3748;
-            border-radius: 8px;
-            padding: 20px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
-            border-top: 4px solid var(--feud-gold);
+            background: var(--glass);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.3);
+            transition: var(--transition);
         }
 
-        label { display: block; font-weight: bold; margin: 10px 0 5px; color: #cbd5e0;}
-        input, select {
-            width: 100%; padding: 8px; box-sizing: border-box;
-            background: #1a202c; border: 1px solid #4a5568;
-            color: white; border-radius: 4px; font-size: 1rem;
-        }
-
-        button {
-            background: var(--feud-gold); color: black; font-weight: bold;
-            border: none; padding: 10px 15px; border-radius: 4px;
-            cursor: pointer; transition: background 0.2s; font-size: 1rem;
-            margin-top: 10px; margin-right: 5px;
-        }
-        button:hover { background: #d4a10d; }
-        button.danger { background: #e53e3e; color: white; }
-        button.danger:hover { background: #c53030; }
-        button.secondary { background: #4a5568; color: white; }
-        button.secondary:hover { background: #3182ce; }
-
-        /* Question Bank UI */
-        .q-list-item {
-            background: #1a202c; padding: 10px; border-radius: 4px;
-            margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center;
-            border-left: 3px solid #4a5568;
-        }
-        .q-list-item.active-q { border-left-color: #38a169; background: #223e2e; }
-
-        /* Score grid */
-        .score-grid { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 15px;}
-        .score-box { 
-            background: #1a202c; padding: 10px; border-radius: 4px; text-align: center; flex: 1; min-width: 120px;
-            border: 2px solid transparent;
-        }
-        .score-box.active-team { border-color: var(--feud-gold); }
-        .score-box h4 { margin: 0 0 5px 0; text-transform: uppercase; font-size: 0.85rem;}
-        .score-box .score-num { font-size: 1.8rem; font-weight: bold; color: var(--feud-gold); }
-
-        .ans-row { display: grid; grid-template-columns: 3fr 1fr; gap: 5px; margin-bottom: 5px; }
         .launcher-zone {
-            background: #2b6cb0; text-align: center; padding: 15px; border-radius: 8px; margin-bottom: 20px;
+            grid-column: span 2;
+            background: linear-gradient(90deg, var(--blue-light), var(--blue-medium));
+            padding: 30px;
+            border-radius: 20px;
+            text-align: center;
+            border: 2px solid var(--gold);
+            margin-bottom: 20px;
+            animation: slideDown 0.5s ease;
         }
-        .launcher-zone button { background: white; color: #2b6cb0; font-size: 1.2rem; }
-        
-        .multiplier-selector {
-            display: flex; gap: 5px; margin-top: 5px;
+
+        /* Modern Inputs */
+        label { font-size: 0.85rem; font-weight: 600; color: var(--gold-light); text-transform: uppercase; margin-bottom: 8px; display: block; }
+        input, select {
+            width: 100%; padding: 12px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.2);
+            background: rgba(0,0,0,0.3); color: white; font-family: 'Poppins'; margin-bottom: 15px;
         }
-        .mult-btn {
-            flex: 1; background: #4a5568; color: white; padding: 6px; font-size: 0.9rem; margin: 0;
+
+        /* Elegant Buttons */
+        button {
+            font-family: 'Poppins';
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            padding: 12px 20px;
+            border-radius: 12px;
+            border: none;
+            cursor: pointer;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
         }
-        .mult-btn.active {
-            background: #e53e3e; color: white; box-shadow: 0 0 10px rgba(229,62,62,0.5);
+
+        .btn-gold {
+            background: linear-gradient(180deg, var(--gold-light) 0%, var(--gold) 100%);
+            color: var(--blue-dark);
+            box-shadow: 0 4px 15px rgba(241, 184, 17, 0.3);
         }
+        .btn-gold:hover { transform: translateY(-3px); box-shadow: 0 8px 25px rgba(241, 184, 17, 0.5); }
+        .btn-gold:active { transform: translateY(0); }
+
+        .btn-outline {
+            background: transparent;
+            border: 1px solid rgba(255,255,255,0.3);
+            color: white;
+        }
+        .btn-outline:hover { background: rgba(255,255,255,0.1); border-color: white; }
+
+        .btn-danger { background: var(--danger); color: white; }
+        .btn-danger:hover { filter: brightness(1.2); box-shadow: 0 5px 15px rgba(255, 71, 87, 0.4); }
+
+        /* Scoring & Multipliers */
+        .score-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); gap: 10px; margin-bottom: 20px; }
+        .score-box {
+            background: rgba(0,0,0,0.3); padding: 15px; border-radius: 15px; text-align: center;
+            border: 2px solid transparent; cursor: pointer; transition: var(--transition);
+        }
+        .score-box.active-team { border-color: var(--gold); background: rgba(241, 184, 17, 0.1); }
+        .score-num { font-family: 'Bebas Neue'; font-size: 2rem; color: var(--gold); }
+
+        .multiplier-group { display: flex; gap: 5px; margin-bottom: 20px; }
+        .mult-btn { flex: 1; font-size: 0.7rem; padding: 8px; background: rgba(255,255,255,0.1); }
+        .mult-btn.active { background: var(--gold); color: var(--blue-dark); }
+
+        /* Question Bank List */
+        .bank-item {
+            display: flex; justify-content: space-between; align-items: center;
+            background: rgba(0,0,0,0.2); padding: 12px 18px; border-radius: 15px; margin-bottom: 10px;
+            border-left: 4px solid transparent; transition: var(--transition);
+        }
+        .bank-item:hover { background: rgba(255,255,255,0.05); }
+        .bank-item.active-q { border-left-color: var(--success); background: rgba(46, 213, 115, 0.1); }
+
+        @keyframes slideDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
 
     <div id="teacher-view">
         <div class="launcher-zone">
-            <h2 style="color: white; margin: 0 0 10px 0;">🎥 Math Feud Setup</h2>
-            <button onclick="openProjectorWindow()">1. Open Projector Window</button>
+            <h1>Math Feud Controller</h1>
+            <button onclick="openProjectorWindow()" class="btn-gold" style="font-size: 1.2rem; padding: 15px 40px;">Launch Projector Window</button>
         </div>
 
-        <div class="container">
+        <div class="master-container">
             <div class="panel">
-                <h2>1. Team Setup</h2>
-                <label>Number of Teams:</label>
+                <h2>Game Controls</h2>
+                
+                <label>Teams</label>
                 <select id="team-count" onchange="initTeams()">
                     <option value="2">2 Teams</option>
                     <option value="3">3 Teams</option>
                     <option value="4">4 Teams</option>
                 </select>
-                <div id="team-name-inputs" style="margin-top: 10px;"></div>
-                <button onclick="saveTeamNames()" class="secondary">Sync Team Names</button>
-
-                <hr style="border-color: #4a5568; margin: 20px 0;">
                 
-                <h2>2. Live Scoring Deck</h2>
+                <div id="team-name-inputs"></div>
+                <button onclick="saveTeamNames()" class="btn-outline" style="width:100%; margin-bottom:20px;">Update Names</button>
+
+                <label>Point Multiplier</label>
+                <div class="multiplier-group">
+                    <button id="m1-btn" class="mult-btn active" onclick="setMultiplier(1)">x1</button>
+                    <button id="m2-btn" class="mult-btn" onclick="setMultiplier(2)">x2</button>
+                    <button id="m3-btn" class="mult-btn" onclick="setMultiplier(3)">x3</button>
+                </div>
+
+                <label>Live Score (Click Team to Target)</label>
                 <div class="score-grid" id="control-score-grid"></div>
-                
-                <label>Round Value Multiplier:</label>
-                <div class="multiplier-selector">
-                    <button id="m1-btn" class="mult-btn active" onclick="setMultiplier(1)">Single Points</button>
-                    <button id="m2-btn" class="mult-btn" onclick="setMultiplier(2)">Double Points (x2)</button>
-                    <button id="m3-btn" class="mult-btn" onclick="setMultiplier(3)">Triple Points (x3)</button>
-                </div>
 
-                <label style="margin-top:15px;">Strikes Counter:</label>
-                <div>
-                    <button onclick="adjustStrikes(1)" class="danger" style="font-size:1.1rem; width:100%;">⚠️ Add Strike (X)</button>
-                    <button onclick="adjustStrikes(0)" class="secondary" style="width:100%; margin-top:5px;">Reset X</button>
-                </div>
+                <button onclick="adjustStrikes(1)" class="btn-danger" style="width:100%; font-size:1.1rem;">ADD STRIKE (X)</button>
+                <button onclick="adjustStrikes(0)" class="btn-outline" style="width:100%; margin-top:10px;">Clear Strikes</button>
             </div>
 
             <div class="panel">
-                <h2>3. Question Bank</h2>
-                <div id="question-bank-list" style="max-height: 250px; overflow-y: auto; margin-bottom: 15px; border: 1px solid #4a5568; padding: 5px; border-radius:4px;">
-                    </div>
-
-                <h3 style="border-top: 1px solid #4a5568; padding-top: 15px;">Add New Bank Question</h3>
-                <label>Question text:</label>
-                <input type="text" id="edit-q-text" placeholder="e.g., Name an even prime number">
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <h2>Question Bank</h2>
+                    <p style="font-size: 0.8rem; color: #aaa;">Click 'Push' to update board</p>
+                </div>
                 
-                <label>Answers & Base Points:</label>
-                <div id="edit-answers-list">
-                    </div>
-                <button onclick="addQuestionToBank()" style="width:100%;">Save to Question Bank</button>
+                <div id="question-bank-list" style="margin-bottom: 30px;"></div>
+
+                <h3 style="border-top: 1px solid var(--glass); padding-top: 20px;">Create New Question</h3>
+                <label>Question Prompt</label>
+                <input type="text" id="edit-q-text" placeholder="e.g. Name a Prime Number...">
+                
+                <label>Answers & Base Points</label>
+                <div id="edit-answers-list" style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;"></div>
+                <button onclick="addQuestionToBank()" class="btn-gold" style="width:100%; margin-top:15px;">Save to Bank</button>
             </div>
         </div>
     </div>
 
     <div id="projector-view" style="display:none;">
         <style>
-            .projector-body {
-                background: radial-gradient(circle, #102a45 0%, #051026 100%);
-                color: white; margin: 0; padding: 30px; height: 100vh; box-sizing: border-box;
-                font-family: 'Arial Black', Impact, sans-serif; display: flex; flex-direction: column; justify-content: space-between;
-                overflow: hidden;
+            .proj-body {
+                background: radial-gradient(circle at center, #0a1f44 0%, #020611 100%);
+                color: white; margin: 0; padding: 40px; height: 100vh; display: flex; flex-direction: column;
+                font-family: 'Poppins', sans-serif; overflow: hidden;
             }
-            .proj-header { text-align: center; font-size: 3.5rem; color: #f1b811; text-transform: uppercase; -webkit-text-stroke: 2px #fff; margin: 0;}
-            .proj-scores { display: flex; justify-content: center; gap: 30px; margin: 15px 0; }
-            
-            /* Score Card Transitions */
-            .proj-team-card { 
-                background: linear-gradient(180deg, #0044cc 0%, #001155 100%); 
-                border: 5px solid #fff; border-radius: 12px; padding: 10px 25px; 
-                text-align: center; min-width: 200px; 
-                box-shadow: 0 10px 20px rgba(0,0,0,0.5);
-                transition: all 0.4s ease;
+            .proj-header { 
+                font-family: 'Bebas Neue'; font-size: 5rem; text-align: center; color: var(--gold);
+                text-shadow: 0 0 20px rgba(241,184,17,0.5); margin: 0;
             }
-            .proj-team-card.active { border-color: #f1b811; box-shadow: 0 0 30px #f1b811; transform: scale(1.05); }
-            .proj-team-name { font-size: 1.6rem; text-transform: uppercase; letter-spacing: 1px;}
             
-            /* Score counter keyframe update effect */
-            .proj-team-score { font-size: 3.8rem; color: #f1b811; margin-top: 5px; transition: all 0.3s ease;}
-            .score-changed { animation: scorePulse 0.6s ease-out; }
-            @keyframes scorePulse {
-                0% { transform: scale(1); color: #fff; text-shadow: 0 0 20px #fff; }
-                50% { transform: scale(1.3); color: #ffcc00; text-shadow: 0 0 30px #ffcc00; }
-                100% { transform: scale(1); color: #f1b811; }
+            /* Team Score Cards */
+            .proj-score-row { display: flex; justify-content: center; gap: 40px; margin: 20px 0; }
+            .proj-card {
+                background: rgba(255,255,255,0.05); border: 3px solid rgba(255,255,255,0.2);
+                border-radius: 20px; padding: 20px 40px; min-width: 220px; text-align: center;
+                transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            }
+            .proj-card.active { border-color: var(--gold); background: rgba(241,184,17,0.1); transform: scale(1.1); box-shadow: 0 0 40px rgba(241,184,17,0.3); }
+            .proj-name { font-family: 'Bebas Neue'; font-size: 2rem; letter-spacing: 2px; }
+            .proj-score { font-family: 'Bebas Neue'; font-size: 4.5rem; color: var(--gold); }
+
+            /* Board */
+            .proj-board {
+                flex-grow: 1; background: rgba(0,0,0,0.4); border: 8px double var(--gold);
+                border-radius: 40px; padding: 30px; display: flex; flex-direction: column;
+                box-shadow: inset 0 0 50px #000;
+            }
+            .proj-question {
+                font-size: 2.8rem; font-weight: 700; text-align: center; margin-bottom: 30px;
+                color: white; text-shadow: 2px 2px 10px #000;
+                animation: fadeIn 0.8s ease;
+            }
+            
+            .proj-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+            
+            /* Flip Card Styling */
+            .flip-container { perspective: 1000px; height: 85px; }
+            .flip-card { 
+                width: 100%; height: 100%; position: relative; transform-style: preserve-3d; 
+                transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+            }
+            .flip-card.open { transform: rotateX(180deg); }
+            .face { 
+                position: absolute; width: 100%; height: 100%; backface-visibility: hidden;
+                border-radius: 15px; border: 4px solid white; display: flex; align-items: center;
+                padding: 0 25px; box-sizing: border-box; font-family: 'Bebas Neue';
+            }
+            .front { background: linear-gradient(135deg, #1e3799, #0c2461); justify-content: center; }
+            .back { 
+                background: linear-gradient(135deg, #079992, #006266); transform: rotateX(180deg); 
+                justify-content: space-between; border-color: var(--gold);
+            }
+            .f-num { background: var(--gold); color: #000; width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2rem; }
+            .f-text { font-size: 2.2rem; }
+            .f-pts { background: white; color: black; padding: 5px 15px; border-radius: 8px; font-size: 2.2rem; }
+
+            /* Strike Animations */
+            .strike-zone { text-align: center; font-size: 7rem; color: var(--danger); height: 120px; text-shadow: 0 0 30px #ff0000; }
+            .strike-anim { animation: strikeBoom 0.5s ease; }
+
+            .multiplier-badge {
+                position: absolute; top: 30px; right: 30px; background: var(--danger);
+                color: white; padding: 10px 20px; border-radius: 50px; font-weight: 700;
+                border: 2px solid white; box-shadow: 0 5px 15px rgba(0,0,0,0.3);
             }
 
-            .proj-board { background: #030a21; border: 10px double #f1b811; border-radius: 30px; padding: 25px; flex-grow: 1; display: flex; flex-direction: column; justify-content: space-between; box-shadow: inset 0 0 40px #000; }
+            @keyframes strikeBoom { 0% { transform: scale(0.5); opacity: 0; } 50% { transform: scale(1.5); } 100% { transform: scale(1); opacity: 1; } }
+            @keyframes fadeIn { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
             
-            /* Question Text Animation */
-            .proj-q-display { 
-                background: linear-gradient(180deg, #002266 0%, #001133 100%); 
-                border: 3px solid #f1b811; border-radius: 15px; padding: 15px; 
-                text-align: center; font-size: 2.1rem; min-height: 60px; 
-                display: flex; align-items: center; justify-content: center; 
-                text-shadow: 2px 2px 4px #000; color: #fff;
-                transition: all 0.5s ease;
-            }
-            .q-changed { animation: qSwipe 0.5s ease-in-out; }
-            @keyframes qSwipe {
-                0% { opacity: 0; transform: translateY(-20px); }
-                100% { opacity: 1; transform: translateY(0); }
-            }
-
-            .proj-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 15px;}
-            .proj-card-container { perspective: 1000px; height: 70px; }
-            .proj-card { width: 100%; height: 100%; position: relative; transform-style: preserve-3d; transition: transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-            .proj-card.flipped { transform: rotateX(180deg); }
-            .proj-face { position: absolute; width: 100%; height: 100%; backface-visibility: hidden; border-radius: 10px; display: flex; align-items: center; box-sizing: border-box; border: 4px solid #fff; padding: 0 20px;}
-            .proj-front { background: linear-gradient(135deg, #0055ff 0%, #0022aa 100%); justify-content: center; }
-            .proj-circle-num { background: #f1b811; color: black; border-radius: 50%; width: 42px; height: 42px; display: flex; align-items: center; justify-content: center; font-size: 1.6rem; box-shadow: 0 3px 5px rgba(0,0,0,0.5); }
-            .proj-back { background: linear-gradient(135deg, #228b22 0%, #0f4d0f 100%); transform: rotateX(180deg); justify-content: space-between; border-color: #f1b811; }
-            .proj-ans-text { font-size: 1.6rem; text-transform: uppercase; text-shadow: 2px 2px #000; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 80%;}
-            .proj-ans-pts { background: #fff; color: black; padding: 3px 12px; font-size: 1.8rem; border-radius: 5px; min-width: 45px; text-align: center; font-weight: bold;}
-            
-            /* Strike animations */
-            .proj-strike-zone { font-size: 5.5rem; color: #ff2222; text-shadow: 0 0 20px #ff0000; text-align: center; height: 90px; letter-spacing: 15px;}
-            .strike-flash { animation: strikeBlam 0.4s ease-in-out 2; }
-            @keyframes strikeBlam {
-                0% { transform: scale(1); filter: brightness(1); }
-                50% { transform: scale(1.4); filter: brightness(1.5); }
-                100% { transform: scale(1); filter: brightness(1); }
-            }
-            .badge-mult { background: #e53e3e; color: white; padding: 2px 10px; border-radius: 20px; font-size: 1rem; position: absolute; top: 15px; right: 15px; font-family: sans-serif; border: 1px solid white;}
+            .score-pop { animation: pop 0.4s ease; }
+            @keyframes pop { 0% { transform: scale(1); } 50% { transform: scale(1.3); color: white; } 100% { transform: scale(1); } }
         </style>
-        
-        <div class="projector-body">
-            <span class="badge-mult" id="proj-mult-indicator">SINGLE POINTS</span>
+
+        <div class="proj-body">
+            <div id="proj-mult-badge" class="multiplier-badge">x1 POINTS</div>
             <h1 class="proj-header">Math Feud</h1>
-            <div class="proj-scores" id="proj-scores-target"></div>
-            
+            <div class="proj-score-row" id="proj-scores"></div>
             <div class="proj-board">
-                <div class="proj-q-display" id="proj-q-target">Awaiting Question...</div>
-                <div class="proj-grid" id="proj-grid-target"></div>
-                <div class="proj-strike-zone" id="proj-strike-target"></div>
+                <div class="proj-question" id="proj-q-text">Awaiting Teacher...</div>
+                <div class="proj-grid" id="proj-grid"></div>
+                <div class="strike-zone" id="proj-strikes"></div>
             </div>
         </div>
     </div>
 
     <script>
-        // Array holding the loaded question database
-        let questionBank = [
+        /* CORE LOGIC */
+        let questionBank = JSON.parse(localStorage.getItem('mathFeudBank')) || [
             {
-                question: "Name a tool used in Geometry class",
-                answers: [
-                    {text: "Ruler / Straightedge", pts: 45},
-                    {text: "Protractor", pts: 32},
-                    {text: "Compass", pts: 18},
-                    {text: "Pencil", pts: 5}
-                ]
-            },
-            {
-                question: "Name a topic studied in Algebra",
-                answers: [
-                    {text: "Equations / Solving for X", pts: 50},
-                    {text: "Graphing / Slopes", pts: 25},
-                    {text: "Polynomials", pts: 12},
-                    {text: "Functions", pts: 8}
-                ]
+                question: "Name a Prime Number below 20",
+                answers: [{text: "2", pts: 40}, {text: "3", pts: 30}, {text: "5", pts: 20}, {text: "7", pts: 10}]
             }
         ];
 
         let gameState = {
-            currentQuestion: "Setup complete. Select a question to broadcast!",
+            currentQuestion: "Welcome to Math Feud!",
             answers: [],
             strikes: 0,
             activeTeam: 0,
             multiplier: 1,
-            teams: [
-                {name: "Team 1", score: 0},
-                {name: "Team 2", score: 0}
-            ]
+            teams: [{name: "Team 1", score: 0}, {name: "Team 2", score: 0}]
         };
 
-        // Cache trackers for animations
-        let lastScores = [];
-        let lastQuestion = "";
-        let lastStrikes = 0;
-
         const urlParams = new URLSearchParams(window.location.search);
-        const isProjectorView = urlParams.get('view') === 'projector';
+        const isProjector = urlParams.get('view') === 'projector';
 
         window.onload = function() {
-            if (isProjectorView) {
+            if (isProjector) {
                 document.getElementById('teacher-view').remove();
                 document.getElementById('projector-view').style.display = 'block';
-                listenToController();
+                startProjector();
             } else {
                 initTeams();
                 renderAnswerInputs();
-                renderQuestionBank();
-                syncToLocalStorage();
-                
+                renderBank();
+                sync();
                 window.addEventListener('storage', () => {
-                    const data = localStorage.getItem('mathFeudState');
-                    if (data) {
-                        gameState = JSON.parse(data);
-                        updateControllerUI();
-                    }
+                    gameState = JSON.parse(localStorage.getItem('mathFeudState'));
+                    updateUI();
                 });
             }
         };
 
-        /* ================= TEACHER CONTROLS ================= */
+        /* TEACHER FUNCTIONS */
         function openProjectorWindow() {
-            window.open(window.location.href + "?view=projector", "MathFeudProjector", "width=1024,height=768");
+            window.open(window.location.href + "?view=projector", "MathFeudProj", "width=1200,height=800");
         }
 
         function initTeams() {
-            const count = parseInt(document.getElementById('team-count').value);
-            const container = document.getElementById('team-name-inputs');
-            container.innerHTML = '';
-            
-            const oldTeams = [...gameState.teams];
-            gameState.teams = [];
-            
-            for(let i = 0; i < count; i++) {
-                const oldName = oldTeams[i] ? oldTeams[i].name : `Team ${i+1}`;
-                const oldScore = oldTeams[i] ? oldTeams[i].score : 0;
-                
-                gameState.teams.push({ name: oldName, score: oldScore });
-                container.innerHTML += `
-                    <div style="margin-bottom:5px;">
-                        <input type="text" id="t-input-${i}" value="${oldName}" style="width:55%; display:inline-block;">
-                        <button onclick="manualScoreAdjust(${i}, 5)" class="secondary" style="padding:4px 8px; margin:0;">+5</button>
-                        <button onclick="manualScoreAdjust(${i}, -5)" class="danger" style="padding:4px 8px; margin:0;">-5</button>
-                    </div>
-                `;
-            }
-            syncToLocalStorage();
-            updateControllerUI();
+            const count = document.getElementById('team-count').value;
+            gameState.teams = Array.from({length: count}, (_, i) => ({
+                name: gameState.teams[i]?.name || `Team ${i+1}`,
+                score: gameState.teams[i]?.score || 0
+            }));
+            renderTeamInputs();
+            sync();
+            updateUI();
         }
 
-        function saveTeamNames() {
-            gameState.teams.forEach((team, i) => {
-                const val = document.getElementById(`t-input-${i}`).value;
-                if(val) team.name = val;
-            });
-            syncToLocalStorage();
-            updateControllerUI();
+        function renderTeamInputs() {
+            const container = document.getElementById('team-name-inputs');
+            container.innerHTML = gameState.teams.map((t, i) => `
+                <div style="display:flex; gap:5px; margin-bottom:5px;">
+                    <input type="text" value="${t.name}" onchange="updateTeamName(${i}, this.value)" style="margin:0;">
+                    <button class="btn-outline" onclick="adjScore(${i}, 5)" style="padding:5px 10px;">+5</button>
+                    <button class="btn-outline" onclick="adjScore(${i}, -5)" style="padding:5px 10px;">-5</button>
+                </div>
+            `).join('');
+        }
+
+        function updateTeamName(i, val) { gameState.teams[i].name = val; sync(); updateUI(); }
+
+        function adjScore(i, amt) { 
+            gameState.teams[i].score = Math.max(0, gameState.teams[i].score + amt); 
+            sync(); updateUI(); 
         }
 
         function renderAnswerInputs() {
-            const grid = document.getElementById('edit-answers-list');
-            grid.innerHTML = '';
-            for(let i=0; i<6; i++) {
-                grid.innerHTML += `
-                    <div class="ans-row">
-                        <input type="text" id="new-ans-text-${i}" placeholder="Answer Option">
-                        <input type="number" id="new-ans-pts-${i}" placeholder="Pts">
-                    </div>
-                `;
-            }
-        }
-
-        function renderQuestionBank() {
-            const list = document.getElementById('question-bank-list');
-            list.innerHTML = '';
-            questionBank.forEach((item, index) => {
-                list.innerHTML += `
-                    <div class="q-list-item" id="q-bank-item-${index}">
-                        <div style="max-width: 70%;">
-                            <strong>Q: ${item.question}</strong><br>
-                            <small style="color:#a0aec0;">(${item.answers.length} options)</small>
-                        </div>
-                        <div>
-                            <button onclick="pushBankToLive(${index})" class="secondary" style="background:#2b6cb0;color:white;margin:0;padding:4px 8px;font-size:0.8rem;">Push</button>
-                            <button onclick="deleteQuestion(${index})" class="danger" style="margin:0;padding:4px 8px;font-size:0.8rem;">Delete</button>
-                        </div>
-                    </div>
-                `;
-            });
-        }
-
-        function deleteQuestion(index) {
-            if(confirm("Are you sure you want to remove this question from your bank?")) {
-                questionBank.splice(index, 1);
-                renderQuestionBank();
-            }
+            document.getElementById('edit-answers-list').innerHTML = Array.from({length: 6}, (_, i) => `
+                <input type="text" id="ans-${i}" placeholder="Answer ${i+1}">
+                <input type="number" id="pts-${i}" placeholder="Pts">
+            `).join('');
         }
 
         function addQuestionToBank() {
-            const qText = document.getElementById('edit-q-text').value.trim();
-            if(!qText) return alert("Please specify a question prompt.");
-            
+            const qText = document.getElementById('edit-q-text').value;
             let answers = [];
             for(let i=0; i<6; i++) {
-                const txt = document.getElementById(`new-ans-text-${i}`).value.trim();
-                const pts = parseInt(document.getElementById(`new-ans-pts-${i}`).value) || 0;
-                if(txt) {
-                    answers.push({ text: txt, pts: pts });
-                }
+                const text = document.getElementById(`ans-${i}`).value;
+                const pts = parseInt(document.getElementById(`pts-${i}`).value);
+                if(text && pts) answers.push({text, pts});
             }
-            
-            questionBank.push({ question: qText, answers: answers });
-            renderQuestionBank();
-            
+            if(!qText || !answers.length) return alert("Fill in Question and at least 1 answer");
+            questionBank.push({question: qText, answers});
+            localStorage.setItem('mathFeudBank', JSON.stringify(questionBank));
+            renderBank();
             document.getElementById('edit-q-text').value = '';
             renderAnswerInputs();
         }
 
-        function setMultiplier(factor) {
-            gameState.multiplier = factor;
-            document.querySelectorAll('.mult-btn').forEach(b => b.classList.remove('active'));
-            document.getElementById(`m${factor}-btn`).classList.add('active');
-            syncToLocalStorage();
+        function renderBank() {
+            document.getElementById('question-bank-list').innerHTML = questionBank.map((q, i) => `
+                <div class="bank-item ${gameState.currentQuestion === q.question ? 'active-q' : ''}">
+                    <div><strong>${q.question}</strong></div>
+                    <div>
+                        <button class="btn-gold" onclick="pushQ(${i})" style="padding:5px 10px; font-size:0.7rem;">PUSH</button>
+                        <button class="btn-danger" onclick="delQ(${i})" style="padding:5px 10px; font-size:0.7rem;">DEL</button>
+                    </div>
+                </div>
+            `).join('');
         }
 
-        function pushBankToLive(index) {
-            const bankItem = questionBank[index];
-            gameState.currentQuestion = bankItem.question;
-            gameState.answers = bankItem.answers.map(a => ({...a, open: false}));
+        function delQ(i) { questionBank.splice(i,1); localStorage.setItem('mathFeudBank', JSON.stringify(questionBank)); renderBank(); }
+
+        function pushQ(i) {
+            gameState.currentQuestion = questionBank[i].question;
+            gameState.answers = questionBank[i].answers.map(a => ({...a, open: false}));
             gameState.strikes = 0;
-            
-            document.querySelectorAll('.q-list-item').forEach((el, idx) => {
-                if(idx === index) el.classList.add('active-q');
-                else el.classList.remove('active-q');
-            });
-
-            syncToLocalStorage();
-            updateControllerUI();
+            sync(); updateUI(); renderBank();
         }
 
-        function updateControllerUI() {
-            const scoreGrid = document.getElementById('control-score-grid');
-            scoreGrid.innerHTML = '';
-            
-            gameState.teams.forEach((team, i) => {
-                const isActive = gameState.activeTeam === i ? 'active-team' : '';
-                scoreGrid.innerHTML += `
-                    <div class="score-box ${isActive}" onclick="setActiveTeam(${i})" style="cursor:pointer;">
-                        <h4>${team.name}</h4>
-                        <div class="score-num">${team.score}</div>
+        function setMultiplier(m) {
+            gameState.multiplier = m;
+            document.querySelectorAll('.mult-btn').forEach((btn, i) => btn.classList.toggle('active', i+1 === m));
+            sync(); updateUI();
+        }
+
+        function updateUI() {
+            const grid = document.getElementById('control-score-grid');
+            grid.innerHTML = gameState.teams.map((t, i) => `
+                <div class="score-box ${gameState.activeTeam === i ? 'active-team' : ''}" onclick="setTarget(${i})">
+                    <div style="font-size:0.7rem;">${t.name}</div>
+                    <div class="score-num">${t.score}</div>
+                </div>
+            `).join('');
+
+            let controlHtml = `<h3>Board Control</h3><p>${gameState.currentQuestion}</p>`;
+            gameState.answers.forEach((a, i) => {
+                controlHtml += `
+                    <div style="display:flex; justify-content:space-between; align-items:center; background:rgba(255,255,255,0.05); padding:10px; border-radius:10px; margin-bottom:5px;">
+                        <span>${a.text} (${a.pts})</span>
+                        <button class="${a.open ? 'btn-outline' : 'btn-gold'}" onclick="reveal(${i})">${a.open ? 'HIDDEN' : 'REVEAL'}</button>
                     </div>
                 `;
             });
-
-            let liveControlDeck = document.getElementById('live-control-deck');
-            if(!liveControlDeck) {
-                liveControlDeck = document.createElement('div');
-                liveControlDeck.id = 'live-control-deck';
-                document.getElementById('control-score-grid').parentNode.appendChild(liveControlDeck);
-            }
-            
-            let html = `<h3 style="margin-top:20px;">Board Actions (Multiplier: x${gameState.multiplier})</h3><p><strong>Active:</strong> ${gameState.currentQuestion}</p>`;
-            gameState.answers.forEach((ans, i) => {
-                const btnLabel = ans.open ? "REVEALED" : "REVEAL";
-                const btnColor = ans.open ? "#2f855a" : "#2b6cb0";
-                html += `
-                    <div style="display:flex; justify-content:space-between; align-items:center; background:#1a202c; padding:6px; margin-bottom:5px; border-radius:4px;">
-                        <span>${i+1}. ${ans.text} (${ans.pts} pts Base)</span>
-                        <button onclick="revealLiveAnswer(${i})" style="margin:0; padding:4px 8px; background:${btnColor}; color:white; font-size:0.8rem;">${btnLabel}</button>
-                    </div>
-                `;
-            });
-            liveControlDeck.innerHTML = html;
+            const boardCtrl = document.getElementById('board-ctrl') || document.createElement('div');
+            boardCtrl.id = 'board-ctrl';
+            boardCtrl.innerHTML = controlHtml;
+            document.querySelector('.master-container').appendChild(boardCtrl);
         }
 
-        function setActiveTeam(index) {
-            gameState.activeTeam = index;
-            syncToLocalStorage();
-            updateControllerUI();
-        }
+        function setTarget(i) { gameState.activeTeam = i; sync(); updateUI(); }
 
-        function manualScoreAdjust(teamIndex, amount) {
-            gameState.teams[teamIndex].score += amount;
-            if(gameState.teams[teamIndex].score < 0) gameState.teams[teamIndex].score = 0;
-            syncToLocalStorage();
-            updateControllerUI();
-        }
-
-        function revealLiveAnswer(index) {
-            if(!gameState.answers[index].open) {
-                gameState.answers[index].open = true;
-                const finalPoints = gameState.answers[index].pts * gameState.multiplier;
-                const targetTeam = gameState.activeTeam;
-                gameState.teams[targetTeam].score += finalPoints;
+        function reveal(i) {
+            if(!gameState.answers[i].open) {
+                gameState.answers[i].open = true;
+                gameState.teams[gameState.activeTeam].score += (gameState.answers[i].pts * gameState.multiplier);
             } else {
-                gameState.answers[index].open = false;
+                gameState.answers[i].open = false;
             }
-            syncToLocalStorage();
-            updateControllerUI();
+            sync(); updateUI();
         }
 
-        function adjustStrikes(val) {
-            if(val === 0) gameState.strikes = 0;
+        function adjustStrikes(amt) {
+            if(amt === 0) gameState.strikes = 0;
             else if(gameState.strikes < 3) gameState.strikes++;
-            syncToLocalStorage();
+            sync(); updateUI();
         }
 
-        function syncToLocalStorage() {
-            localStorage.setItem('mathFeudState', JSON.stringify(gameState));
+        function sync() { localStorage.setItem('mathFeudState', JSON.stringify(gameState)); }
+
+        /* PROJECTOR FUNCTIONS */
+        let lastScores = [];
+        let lastStrikes = 0;
+
+        function startProjector() {
+            updateProjector();
+            window.addEventListener('storage', updateProjector);
         }
 
+        function updateProjector() {
+            const state = JSON.parse(localStorage.getItem('mathFeudState'));
+            if(!state) return;
 
-        /* ================= PROJECTOR VIEW ANIMATIONS ================= */
-        function listenToController() {
-            renderProjectorUI();
-            window.addEventListener('storage', () => { renderProjectorUI(); });
-        }
+            document.getElementById('proj-q-text').innerText = state.currentQuestion;
+            document.getElementById('proj-mult-badge').innerText = `x${state.multiplier} POINTS`;
 
-        function renderProjectorUI() {
-            const data = localStorage.getItem('mathFeudState');
-            if (!data) return;
-            const state = JSON.parse(data);
-
-            // 1. Point Multiplier Indicator Display Text
-            const multLabels = ["", "SINGLE POINTS", "DOUBLE POINTS (x2)", "TRIPLE POINTS (x3)"];
-            document.getElementById('proj-mult-indicator').innerText = multLabels[state.multiplier] || "SINGLE POINTS";
-
-            // 2. Question Text Update Animation Trigger
-            const qTarget = document.getElementById('proj-q-target');
-            if (state.currentQuestion !== lastQuestion) {
-                qTarget.innerText = state.currentQuestion;
-                qTarget.classList.remove('q-changed');
-                void qTarget.offsetWidth; // Trigger DOM reflow to restart animation sequence
-                qTarget.classList.add('q-changed');
-                lastQuestion = state.currentQuestion;
-            }
-
-            // 3. Score Tracker + Pop Animation Trigger
-            const scoreContainer = document.getElementById('proj-scores-target');
-            scoreContainer.innerHTML = '';
-            state.teams.forEach((team, idx) => {
-                const activeClass = state.activeTeam === idx ? 'active' : '';
-                
-                // Compare to verify if score numeric value shifted upward or downward
-                let triggerScoreClass = "";
-                if (lastScores[idx] !== undefined && lastScores[idx] !== team.score) {
-                    triggerScoreClass = "score-changed";
-                }
-
-                scoreContainer.innerHTML += `
-                    <div class="proj-team-card ${activeClass}">
-                        <div class="proj-team-name">${team.name}</div>
-                        <div class="proj-team-score ${triggerScoreClass}">${team.score}</div>
+            // Scores
+            const scoreContainer = document.getElementById('proj-scores');
+            scoreContainer.innerHTML = state.teams.map((t, i) => {
+                const pop = (lastScores[i] !== undefined && lastScores[i] !== t.score) ? 'score-pop' : '';
+                return `
+                    <div class="proj-card ${state.activeTeam === i ? 'active' : ''}">
+                        <div class="proj-name">${t.name}</div>
+                        <div class="proj-score ${pop}">${t.score}</div>
                     </div>
                 `;
-                lastScores[idx] = team.score;
-            });
+            }).join('');
+            lastScores = state.teams.map(t => t.score);
 
-            // 4. Strike Warning Container Flash Trigger
-            const strikeTarget = document.getElementById('proj-strike-target');
-            let strikeStr = '';
-            for(let s=0; s<state.strikes; s++) { strikeStr += 'X '; }
-            strikeTarget.innerText = strikeStr;
-            
-            if (state.strikes > lastStrikes) {
-                strikeTarget.classList.remove('strike-flash');
-                void strikeTarget.offsetWidth;
-                strikeTarget.classList.add('strike-flash');
-            }
-            lastStrikes = state.strikes;
+            // Strikes
+            const sTarget = document.getElementById('proj-strikes');
+            let sHtml = '';
+            for(let i=0; i<state.strikes; i++) sHtml += `<span class="strike-anim">X </span>`;
+            sTarget.innerHTML = sHtml;
 
-            // 5. Main Grid Card Matrix
-            const gridContainer = document.getElementById('proj-grid-target');
-            gridContainer.innerHTML = '';
-            state.answers.forEach((ans, idx) => {
-                const isFlipped = ans.open ? 'flipped' : '';
-                const displayPoints = ans.pts * state.multiplier; // Scale displayed value automatically
-                gridContainer.innerHTML += `
-                    <div class="proj-card-container">
-                        <div class="proj-card ${isFlipped}">
-                            <div class="proj-face proj-front">
-                                <div class="proj-circle-num">${idx + 1}</div>
-                            </div>
-                            <div class="proj-face proj-back">
-                                <div class="proj-ans-text">${ans.text}</div>
-                                <div class="proj-ans-pts">${displayPoints}</div>
-                            </div>
+            // Board
+            document.getElementById('proj-grid').innerHTML = state.answers.map((a, i) => `
+                <div class="flip-container">
+                    <div class="flip-card ${a.open ? 'open' : ''}">
+                        <div class="face front"><div class="f-num">${i+1}</div></div>
+                        <div class="face back">
+                            <div class="f-text">${a.text}</div>
+                            <div class="f-pts">${a.pts * state.multiplier}</div>
                         </div>
                     </div>
-                `;
-            });
+                </div>
+            `).join('');
         }
     </script>
 </body>
